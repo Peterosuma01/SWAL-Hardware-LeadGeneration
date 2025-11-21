@@ -6,7 +6,7 @@
   "display": "standalone",
   "background_color": "#667eea",
   "theme_color": "#667eea",
-  "description": "PWA wrapper for Steelwool Africa LTD lead-generation app",
+  "description": "PWA wrapper for Steelwool (Africa) Limited lead-generation app",
   "icons": [
     {
       "src": "/SWAL-Hardware-LeadGeneration/icons/icon-192.png",
