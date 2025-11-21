@@ -2,7 +2,7 @@ const CACHE_NAME = 'steelwool-shell-v1';
 const OFFLINE_URL = '/offline.html';
 const PRECACHE = [
   '/',
-  '/Index.html',
+  '/index.html',
   '/manifest.json',
   OFFLINE_URL,
   '/icons/icon-192.png',
