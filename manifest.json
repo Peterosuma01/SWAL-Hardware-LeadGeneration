@@ -1,19 +1,20 @@
 {
-  "name": "Steelwool Africa LTD \u2014 Lead Follow-up",
-  "short_name": "Steelwool",
-  "start_url": ".",
+  "name": "SWAL Hardware Lead-Generation",
+  "short_name": "SWAL Leads",
+  "start_url": "./",  
+  "scope": "./",
   "display": "standalone",
   "background_color": "#667eea",
   "theme_color": "#667eea",
-  "description": "PWA shell that embeds the Steelwool Apps Script WebApp via iframe.",
+  "description": "PWA wrapper for Steelwool Africa LTD lead-generation app",
   "icons": [
     {
-      "src": "/icons/icon-192.png",
+      "src": "/SWAL-Hardware-LeadGeneration/icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/icons/icon-512.png",
+      "src": "/SWAL-Hardware-LeadGeneration/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
