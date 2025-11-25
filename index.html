@@ -238,7 +238,7 @@
 
   <script>
     // ========== CONFIG ==========
-    const API_URL = 'https://script.google.com/macros/s/AKfycbxdpPoNE4qMWj3Tt5K5Ywv_twNG5HFCU6EnC_UX-lQraN1ffCol2LPy4bz4JnWI5HJeDA/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxeBYn_NPgQU2q6V5hS-U4F04VySaoZPnnSBDhNoVxOvJJGDbjvN8BfuhP55FFjjY3Qfg/exec';
     
     // ========== STATE ==========
     let currentLead = null;
@@ -505,7 +505,7 @@
       updateOrderDropdown(res);
       let html = '';
       if (res.submittedOrders.length === 0) html = 'No orders yet. You can submit Order 1.';
-      else if (res.nextAvailableOrder === -1) html = 'All 10 orders submitted.';
+      else if (res.nextAvailableOrder === -1) html = 'All 3 orders submitted.';
       else html = `Submitted: Order ${res.submittedOrders.join(', ')}<br><strong>Next:</strong> Order ${res.nextAvailableOrder}`;
       orderStatus.innerHTML = html;
       orderStatus.classList.remove('hidden');
@@ -513,7 +513,7 @@
 
     function updateOrderDropdown(status) {
       let opts = '<option value="">-- Select Order --</option>';
-      for (let i = 1; i <= 10; i++) {
+      for (let i = 1; i <= 3; i++) {
         const submitted = status.submittedOrders.includes(i);
         const available = i === status.nextAvailableOrder;
         const disabled = submitted || (!available && status.nextAvailableOrder !== -1);
