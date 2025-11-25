@@ -4,13 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#667eea">
-  <title>Steelwool (Africa) Limited - Hardware Lead Generation Follow-up</title>
+  <title>Steelwool Africa LTD - Lead Generation Follow-up</title>
   <link rel="manifest" href="manifest.json">
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;padding:20px;display:flex;justify-content:center;align-items:center}
     .container{background:#fff;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,0.3);max-width:760px;width:100%;padding:28px}
     .header{text-align:center;margin-bottom:18px;padding-bottom:12px;border-bottom:3px solid #667eea}
+    .header-title{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+    .header-logo{width:40px;height:40px;object-fit:contain}
     h1{color:#333;font-size:22px;margin-bottom:4px}
     .subtitle{color:#666;font-size:14px}
     .form-group{margin-bottom:14px}
@@ -68,8 +70,12 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1>Steelwool (Africa) Limited</h1>
-      <p class="subtitle">Hardware Lead Generation Follow-up</p>
+      <div class="header-title">
+        <img src="icons/logo.png" alt="Logo" class="header-logo">
+        <h1>Steelwool (Africa) Limited</h1>
+        <img src="icons/logo.png" alt="Logo" class="header-logo">
+      </div>
+      <p class="subtitle">Lead Generation Follow-up</p>
     </div>
 
     <div id="app">
@@ -189,6 +195,19 @@
         </select>
       </div>
 
+      <!-- KYC Onboarding -->
+      <div class="section-title">KYC Onboarding</div>
+      <div class="form-group">
+        <label>KYC Onboarding Status *</label>
+        <select id="kycOnboarding" disabled>
+          <option value="">-- Select Status --</option>
+          <option value="YES">YES</option>
+          <option value="NO">NO</option>
+          <option value="Pending">Pending</option>
+        </select>
+        <div class="meta">KYC must be "YES" before orders can be placed.</div>
+      </div>
+
       <!-- Sales Rep Email (Supervisor) -->
       <div id="assignSalesRep" class="form-group hidden">
         <label>Assign Sales Rep Email</label>
@@ -219,7 +238,7 @@
 
   <script>
     // ========== CONFIG ==========
-    const API_URL = 'https://script.google.com/macros/s/AKfycbzo9PkKRu_JAMcWzMZVLKNhZ6CNmlU-92pwtenuc8V8YZli6DSH8anlP7xbOcPJlB72AQ/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwwSgCJ7blGTgvDDpIt8opvFuVQV7i9ooEf097gnq9TYs3GJKVIdcBx7eynsnYcbPZI5Q/exec';
     
     // ========== STATE ==========
     let currentLead = null;
@@ -259,6 +278,7 @@
     const btnApprove = $('btnApprove');
     const btnDecline = $('btnDecline');
     const presentation = $('presentation');
+    const kycOnboarding = $('kycOnboarding');
     const assignSalesRep = $('assignSalesRep');
     const assignEmail = $('assignEmail');
     const btnSubmit = $('btnSubmit');
@@ -308,6 +328,7 @@
       assignSalesRep.classList.toggle('hidden', role !== 'Supervisor' || !isSupervisorAuth);
       qualification.disabled = role !== 'Supervisor' || !isSupervisorAuth;
       presentation.disabled = role !== 'SalesRep' || !currentLead || currentLead.approval !== 'Approved';
+      kycOnboarding.disabled = role !== 'SalesRep' || !currentLead || currentLead.approval !== 'Approved';
       if (role === 'Supervisor' && !isSupervisorAuth) showPasswordModal();
     }
 
@@ -330,6 +351,7 @@
       ordersSection.classList.add('hidden');
       qualification.value = '';
       presentation.value = '';
+      kycOnboarding.value = '';
       if (roleSelect.value !== 'Supervisor') {
         isSupervisorAuth = false;
         supervisorPw = '';
@@ -379,6 +401,7 @@
       currentLead = res.data;
       qualification.value = currentLead.qualification || '';
       presentation.value = currentLead.presentation || '';
+      kycOnboarding.value = currentLead.kycOnboarding || '';
       assignEmail.value = currentLead.salesRepEmail || '';
       renderDetails(currentLead);
       detailsSection.classList.remove('hidden');
@@ -562,15 +585,42 @@
         if (res.success) { showMsg('Qualification updated', 'success'); btnLoad.click(); }
         else showMsg(res.message, 'error');
       } else if (role === 'SalesRep') {
-        if (!presentation.value) { showMsg('Select presentation status', 'error'); return; }
-        const res = await api('updatePresentationBySalesRep', {
-          customerCode: code,
-          presentationValue: presentation.value,
-          salesRepEmail: salesRepEmail.value.trim(),
-          password: salesRepPassword.value.trim()
-        });
-        if (res.success) { showMsg('Presentation updated', 'success'); btnLoad.click(); }
-        else showMsg(res.message, 'error');
+        // Update both Presentation and KYC Onboarding
+        let updatesMade = [];
+        let errors = [];
+
+        // Update Presentation if changed
+        if (presentation.value && presentation.value !== currentLead.presentation) {
+          const presRes = await api('updatePresentationBySalesRep', {
+            customerCode: code,
+            presentationValue: presentation.value,
+            salesRepEmail: salesRepEmail.value.trim(),
+            password: salesRepPassword.value.trim()
+          });
+          if (presRes.success) updatesMade.push('Presentation');
+          else errors.push('Presentation: ' + presRes.message);
+        }
+
+        // Update KYC Onboarding if changed
+        if (kycOnboarding.value && kycOnboarding.value !== currentLead.kycOnboarding) {
+          const kycRes = await api('updateKYCOnboardingBySalesRep', {
+            customerCode: code,
+            kycValue: kycOnboarding.value,
+            salesRepEmail: salesRepEmail.value.trim(),
+            password: salesRepPassword.value.trim()
+          });
+          if (kycRes.success) updatesMade.push('KYC Onboarding');
+          else errors.push('KYC: ' + kycRes.message);
+        }
+
+        if (updatesMade.length > 0) {
+          showMsg(updatesMade.join(' and ') + ' updated successfully', 'success');
+          btnLoad.click();
+        } else if (errors.length > 0) {
+          showMsg(errors.join('; '), 'error');
+        } else {
+          showMsg('No changes to save', 'info');
+        }
       }
     });
 
