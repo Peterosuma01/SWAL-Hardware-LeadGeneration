@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#667eea">
-  <title>Steelwool (Africa) LTD - Hardware Lead Generation Follow-up</title>
+  <title>Steelwool Africa LTD - Lead Generation Follow-up</title>
   <link rel="manifest" href="manifest.json">
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
@@ -75,7 +75,7 @@
         <h1>Steelwool (Africa) Limited</h1>
         <img src="icons/logo.png" alt="Logo" class="header-logo">
       </div>
-      <p class="subtitle">Hardware Lead Generation Follow-up</p>
+      <p class="subtitle">Lead Generation Follow-up</p>
     </div>
 
     <div id="app">
@@ -177,6 +177,11 @@
           <option value="Other">Other</option>
         </select>
       </div>
+      <div id="qualificationOtherBox" class="form-group hidden">
+        <label>Specify Other Qualification Reason *</label>
+        <input type="text" id="qualificationOther" placeholder="Enter reason" maxlength="200">
+        <div class="meta">Describe the qualification reason (max 200 characters)</div>
+      </div>
       <div id="approvalButtons" class="btn-row hidden" style="margin-bottom:14px">
         <button class="btn small btn-green" id="btnApprove">Approve</button>
         <button class="btn small btn-red" id="btnDecline">Decline</button>
@@ -193,6 +198,11 @@
           <option value="Refuse to Provide KYC">Refuse to Provide KYC</option>
           <option value="Other">Other</option>
         </select>
+      </div>
+      <div id="presentationOtherBox" class="form-group hidden">
+        <label>Specify Other Presentation Reason *</label>
+        <input type="text" id="presentationOther" placeholder="Enter reason" maxlength="200">
+        <div class="meta">Describe the presentation reason (max 200 characters)</div>
       </div>
 
       <!-- KYC Onboarding -->
@@ -278,7 +288,11 @@
     const btnApprove = $('btnApprove');
     const btnDecline = $('btnDecline');
     const presentation = $('presentation');
+    const presentationOtherBox = $('presentationOtherBox');
+    const presentationOther = $('presentationOther');
     const kycOnboarding = $('kycOnboarding');
+    const qualificationOtherBox = $('qualificationOtherBox');
+    const qualificationOther = $('qualificationOther');
     const assignSalesRep = $('assignSalesRep');
     const assignEmail = $('assignEmail');
     const btnSubmit = $('btnSubmit');
@@ -329,6 +343,11 @@
       qualification.disabled = role !== 'Supervisor' || !isSupervisorAuth;
       presentation.disabled = role !== 'SalesRep' || !currentLead || currentLead.approval !== 'Approved';
       kycOnboarding.disabled = role !== 'SalesRep' || !currentLead || currentLead.approval !== 'Approved';
+      
+      // Show/hide "Other" text boxes based on selection
+      qualificationOtherBox.classList.toggle('hidden', qualification.value !== 'Other');
+      presentationOtherBox.classList.toggle('hidden', presentation.value !== 'Other');
+      
       if (role === 'Supervisor' && !isSupervisorAuth) showPasswordModal();
     }
 
@@ -352,6 +371,10 @@
       qualification.value = '';
       presentation.value = '';
       kycOnboarding.value = '';
+      qualificationOther.value = '';
+      presentationOther.value = '';
+      qualificationOtherBox.classList.add('hidden');
+      presentationOtherBox.classList.add('hidden');
       if (roleSelect.value !== 'Supervisor') {
         isSupervisorAuth = false;
         supervisorPw = '';
@@ -403,6 +426,22 @@
       presentation.value = currentLead.presentation || '';
       kycOnboarding.value = currentLead.kycOnboarding || '';
       assignEmail.value = currentLead.salesRepEmail || '';
+      
+      // Parse "Other: custom text" format
+      if (currentLead.qualification && currentLead.qualification.startsWith('Other: ')) {
+        qualification.value = 'Other';
+        qualificationOther.value = currentLead.qualification.substring(7);
+      } else {
+        qualificationOther.value = '';
+      }
+      
+      if (currentLead.presentation && currentLead.presentation.startsWith('Other: ')) {
+        presentation.value = 'Other';
+        presentationOther.value = currentLead.presentation.substring(7);
+      } else {
+        presentationOther.value = '';
+      }
+      
       renderDetails(currentLead);
       detailsSection.classList.remove('hidden');
       leadsSection.classList.add('hidden');
@@ -473,6 +512,17 @@
     }
 
     btnCloseLeads.addEventListener('click', () => leadsSection.classList.add('hidden'));
+
+    // ========== QUALIFICATION/PRESENTATION CHANGE HANDLERS ==========
+    qualification.addEventListener('change', () => {
+      qualificationOtherBox.classList.toggle('hidden', qualification.value !== 'Other');
+      if (qualification.value !== 'Other') qualificationOther.value = '';
+    });
+
+    presentation.addEventListener('change', () => {
+      presentationOtherBox.classList.toggle('hidden', presentation.value !== 'Other');
+      if (presentation.value !== 'Other') presentationOther.value = '';
+    });
 
     // ========== ORDERS ==========
     btnPlaceOrder.addEventListener('click', () => {
@@ -553,9 +603,21 @@
     async function updateQualification(action) {
       if (!currentLead) { showMsg('Load a lead first', 'error'); return; }
       if (!qualification.value) { showMsg('Select qualification first', 'error'); return; }
+      
+      // If "Other" is selected, validate custom text
+      let qualValue = qualification.value;
+      if (qualValue === 'Other') {
+        const customText = qualificationOther.value.trim();
+        if (!customText) {
+          showMsg('Please specify the qualification reason', 'error');
+          return;
+        }
+        qualValue = 'Other: ' + customText;
+      }
+      
       const res = await api('updateQualificationBySupervisor', {
         customerCode: customerCode.value.trim(),
-        qualificationValue: qualification.value,
+        qualificationValue: qualValue,
         approvalAction: action,
         salesRepEmail: assignEmail.value.trim(),
         password: supervisorPw
@@ -575,9 +637,20 @@
       if (!currentLead || !code) { showMsg('Load a lead first', 'error'); return; }
 
       if (role === 'Supervisor') {
+        // If "Other" is selected, validate custom text
+        let qualValue = qualification.value;
+        if (qualValue === 'Other') {
+          const customText = qualificationOther.value.trim();
+          if (!customText) {
+            showMsg('Please specify the qualification reason', 'error');
+            return;
+          }
+          qualValue = 'Other: ' + customText;
+        }
+        
         const res = await api('updateQualificationBySupervisor', {
           customerCode: code,
-          qualificationValue: qualification.value,
+          qualificationValue: qualValue,
           approvalAction: '',
           salesRepEmail: assignEmail.value.trim(),
           password: supervisorPw
@@ -590,15 +663,30 @@
         let errors = [];
 
         // Update Presentation if changed
-        if (presentation.value && presentation.value !== currentLead.presentation) {
-          const presRes = await api('updatePresentationBySalesRep', {
-            customerCode: code,
-            presentationValue: presentation.value,
-            salesRepEmail: salesRepEmail.value.trim(),
-            password: salesRepPassword.value.trim()
-          });
-          if (presRes.success) updatesMade.push('Presentation');
-          else errors.push('Presentation: ' + presRes.message);
+        if (presentation.value) {
+          let presValue = presentation.value;
+          
+          // If "Other" is selected, validate and format custom text
+          if (presValue === 'Other') {
+            const customText = presentationOther.value.trim();
+            if (!customText) {
+              showMsg('Please specify the presentation reason', 'error');
+              return;
+            }
+            presValue = 'Other: ' + customText;
+          }
+          
+          const currentPres = currentLead.presentation || '';
+          if (presValue !== currentPres) {
+            const presRes = await api('updatePresentationBySalesRep', {
+              customerCode: code,
+              presentationValue: presValue,
+              salesRepEmail: salesRepEmail.value.trim(),
+              password: salesRepPassword.value.trim()
+            });
+            if (presRes.success) updatesMade.push('Presentation');
+            else errors.push('Presentation: ' + presRes.message);
+          }
         }
 
         // Update KYC Onboarding if changed
