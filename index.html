@@ -337,8 +337,23 @@
     // ========== UI UPDATE ==========
     function updateUI() {
       const role = roleSelect.value;
-      salesRepAuth.classList.toggle('hidden', role !== 'SalesRep');
-      actionButtons.classList.toggle('hidden', !role || (role === 'SalesRep' && !isSalesRepLoggedIn));
+      
+      // Show/hide Sales Rep Auth section
+      if (role === 'SalesRep') {
+        salesRepAuth.classList.remove('hidden');
+      } else {
+        salesRepAuth.classList.add('hidden');
+      }
+      
+      // Show action buttons based on role and login status
+      if (role === 'SalesRep' && isSalesRepLoggedIn) {
+        actionButtons.classList.remove('hidden');
+      } else if (role === 'Supervisor') {
+        actionButtons.classList.remove('hidden');
+      } else {
+        actionButtons.classList.add('hidden');
+      }
+      
       btnViewLeads.classList.toggle('hidden', role !== 'Supervisor');
       btnViewOrders.classList.toggle('hidden', role !== 'Supervisor');
       btnViewQualified.classList.toggle('hidden', role !== 'SalesRep');
@@ -349,9 +364,14 @@
       presentation.disabled = role !== 'SalesRep' || !currentLead || currentLead.approval !== 'Approved' || !isSalesRepLoggedIn;
       kycOnboarding.disabled = role !== 'SalesRep' || !currentLead || currentLead.approval !== 'Approved' || !isSalesRepLoggedIn;
       
-      // Show/hide load button and customer code based on login
-      customerCode.disabled = role === 'SalesRep' && !isSalesRepLoggedIn;
-      btnLoad.disabled = role === 'SalesRep' && !isSalesRepLoggedIn;
+      // Enable/disable customer code and load button based on login
+      if (role === 'SalesRep') {
+        customerCode.disabled = !isSalesRepLoggedIn;
+        btnLoad.disabled = !isSalesRepLoggedIn;
+      } else {
+        customerCode.disabled = false;
+        btnLoad.disabled = false;
+      }
       
       // Show/hide "Other" text boxes based on selection
       qualificationOtherBox.classList.toggle('hidden', qualification.value !== 'Other');
