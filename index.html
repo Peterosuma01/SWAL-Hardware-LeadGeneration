@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#667eea">
-  <title>Steelwool (Africa) Limited - Lead Generation Follow-up</title>
+  <title>Steelwool Africa LTD - Lead Generation Follow-up</title>
   <link rel="manifest" href="manifest.json">
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
@@ -71,9 +71,11 @@
   <div class="container">
     <div class="header">
       <div class="header-title">
+        <img src="icons/logo.png" alt="Logo" class="header-logo">
         <h1>Steelwool (Africa) Limited</h1>
+        <img src="icons/logo.png" alt="Logo" class="header-logo">
       </div>
-      <p class="subtitle">Hardware Lead Generation Follow-up</p>
+      <p class="subtitle">Lead Generation Follow-up</p>
     </div>
 
     <div id="app">
@@ -98,6 +100,8 @@
           <label>Sales Rep Password *</label>
           <input type="password" id="salesRepPassword" placeholder="Enter password">
         </div>
+        <button type="button" class="btn" id="btnSalesRepLogin" style="margin-top:8px">Login</button>
+        <div id="salesRepLoginMsg" class="meta" style="margin-top:8px;color:#dc2626;display:none"></div>
       </div>
 
       <!-- Action Buttons -->
@@ -246,13 +250,15 @@
 
   <script>
     // ========== CONFIG ==========
-    const API_URL = 'https://script.google.com/macros/s/AKfycbzixIcZcCkSDu73R_6Gr0yrS_AXPVDQeMK2h4E96DwQU81VS_fb3GPP71pVmCDuDE5o-w/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwMY1AnBlsXSYXEj0eCVjR8i5hNvF6c5nSf11plZfZznc19RmOQIeNUZX0rsvHHhn2uvA/exec';
     
     // ========== STATE ==========
     let currentLead = null;
     let isSupervisorAuth = false;
     let supervisorPw = '';
     let currentOrderStatus = null;
+    let salesRepName = '';
+    let isSalesRepLoggedIn = false;
 
     // ========== ELEMENTS ==========
     const $ = id => document.getElementById(id);
@@ -260,6 +266,9 @@
     const salesRepAuth = $('salesRepAuth');
     const salesRepEmail = $('salesRepEmail');
     const salesRepPassword = $('salesRepPassword');
+    const btnSalesRepLogin = $('btnSalesRepLogin');
+    const salesRepLoginMsg = $('salesRepLoginMsg');
+    const loggedInUser = $('loggedInUser');
     const actionButtons = $('actionButtons');
     const btnViewLeads = $('btnViewLeads');
     const btnViewOrders = $('btnViewOrders');
@@ -330,8 +339,23 @@
     // ========== UI UPDATE ==========
     function updateUI() {
       const role = roleSelect.value;
-      salesRepAuth.classList.toggle('hidden', role !== 'SalesRep');
-      actionButtons.classList.toggle('hidden', !role);
+      
+      // Show/hide Sales Rep Auth section
+      if (role === 'SalesRep') {
+        salesRepAuth.classList.remove('hidden');
+      } else {
+        salesRepAuth.classList.add('hidden');
+      }
+      
+      // Show action buttons based on role and login status
+      if (role === 'SalesRep' && isSalesRepLoggedIn) {
+        actionButtons.classList.remove('hidden');
+      } else if (role === 'Supervisor') {
+        actionButtons.classList.remove('hidden');
+      } else {
+        actionButtons.classList.add('hidden');
+      }
+      
       btnViewLeads.classList.toggle('hidden', role !== 'Supervisor');
       btnViewOrders.classList.toggle('hidden', role !== 'Supervisor');
       btnViewQualified.classList.toggle('hidden', role !== 'SalesRep');
@@ -339,8 +363,17 @@
       approvalButtons.classList.toggle('hidden', role !== 'Supervisor' || !isSupervisorAuth);
       assignSalesRep.classList.toggle('hidden', role !== 'Supervisor' || !isSupervisorAuth);
       qualification.disabled = role !== 'Supervisor' || !isSupervisorAuth;
-      presentation.disabled = role !== 'SalesRep' || !currentLead || currentLead.approval !== 'Approved';
-      kycOnboarding.disabled = role !== 'SalesRep' || !currentLead || currentLead.approval !== 'Approved';
+      presentation.disabled = role !== 'SalesRep' || !currentLead || currentLead.approval !== 'Approved' || !isSalesRepLoggedIn;
+      kycOnboarding.disabled = role !== 'SalesRep' || !currentLead || currentLead.approval !== 'Approved' || !isSalesRepLoggedIn;
+      
+      // Enable/disable customer code and load button based on login
+      if (role === 'SalesRep') {
+        customerCode.disabled = !isSalesRepLoggedIn;
+        btnLoad.disabled = !isSalesRepLoggedIn;
+      } else {
+        customerCode.disabled = false;
+        btnLoad.disabled = false;
+      }
       
       // Show/hide "Other" text boxes based on selection
       qualificationOtherBox.classList.toggle('hidden', qualification.value !== 'Other');
@@ -373,6 +406,16 @@
       presentationOther.value = '';
       qualificationOtherBox.classList.add('hidden');
       presentationOtherBox.classList.add('hidden');
+      salesRepLoginMsg.style.display = 'none';
+      
+      if (roleSelect.value === 'SalesRep') {
+        isSalesRepLoggedIn = false;
+        salesRepName = '';
+        salesRepEmail.value = '';
+        salesRepPassword.value = '';
+        if (loggedInUser) loggedInUser.textContent = '';
+      }
+      
       if (roleSelect.value !== 'Supervisor') {
         isSupervisorAuth = false;
         supervisorPw = '';
@@ -395,11 +438,47 @@
         isSupervisorAuth = true;
         supervisorPw = pw;
         hidePasswordModal();
+        if (loggedInUser) loggedInUser.textContent = '👤 Logged in as: Supervisor';
         updateUI();
         showMsg('Supervisor authenticated', 'success');
       } else {
         passwordHint.textContent = res.message || 'Invalid password';
         passwordHint.style.display = 'block';
+      }
+    });
+
+    // ========== SALES REP LOGIN ==========
+    btnSalesRepLogin.addEventListener('click', async () => {
+      const email = salesRepEmail.value.trim();
+      const password = salesRepPassword.value.trim();
+      
+      if (!email || !password) {
+        salesRepLoginMsg.textContent = 'Please enter email and password';
+        salesRepLoginMsg.style.display = 'block';
+        return;
+      }
+      
+      const res = await api('validateSalesRepLogin', { 
+        salesRepEmail: email, 
+        salesRepPassword: password 
+      });
+      
+      if (res.success) {
+        isSalesRepLoggedIn = true;
+        salesRepName = res.name;
+        salesRepLoginMsg.style.display = 'none';
+        if (loggedInUser) loggedInUser.textContent = `👤 Logged in as: ${res.name}`;
+        btnSalesRepLogin.textContent = 'Logged In ✓';
+        btnSalesRepLogin.disabled = true;
+        btnSalesRepLogin.style.background = '#22c55e';
+        salesRepEmail.disabled = true;
+        salesRepPassword.disabled = true;
+        updateUI();
+        showMsg(`Welcome, ${res.name}!`, 'success');
+      } else {
+        salesRepLoginMsg.textContent = res.message;
+        salesRepLoginMsg.style.display = 'block';
+        salesRepLoginMsg.style.color = '#dc2626';
       }
     });
 
@@ -409,8 +488,8 @@
       const role = roleSelect.value;
       if (!role) { showMsg('Select a role first', 'error'); return; }
       if (!code) { showMsg('Enter customer code', 'error'); return; }
-      if (role === 'SalesRep' && (!salesRepEmail.value.trim() || !salesRepPassword.value.trim())) {
-        showMsg('Enter email and password', 'error'); return;
+      if (role === 'SalesRep' && !isSalesRepLoggedIn) {
+        showMsg('Please login first', 'error'); return;
       }
       const res = await api('getLeadStatus', {
         customerCode: code,
@@ -469,8 +548,8 @@
     });
 
     btnViewQualified.addEventListener('click', async () => {
-      if (!salesRepEmail.value.trim() || !salesRepPassword.value.trim()) {
-        showMsg('Enter email and password first', 'error'); return;
+      if (!isSalesRepLoggedIn) {
+        showMsg('Please login first', 'error'); return;
       }
       const res = await api('getQualifiedLeadsBySalesRep', {
         salesRepEmail: salesRepEmail.value.trim(),
@@ -540,8 +619,8 @@
     btnCheckStatus.addEventListener('click', async () => {
       const code = orderCustomerCode.value.trim();
       if (!code) { showMsg('Enter customer code', 'error'); return; }
-      if (!salesRepEmail.value.trim() || !salesRepPassword.value.trim()) {
-        showMsg('Enter email and password', 'error'); return;
+      if (!isSalesRepLoggedIn) {
+        showMsg('Please login first', 'error'); return;
       }
       const res = await api('getAvailableOrders', {
         customerCode: code,
@@ -578,6 +657,7 @@
       const qty = parseFloat(orderQuantity.value);
       if (!code || !num || !qty || qty <= 0) { showMsg('Fill all fields', 'error'); return; }
       if (!currentOrderStatus) { showMsg('Check status first', 'error'); return; }
+      if (!isSalesRepLoggedIn) { showMsg('Please login first', 'error'); return; }
       const res = await api('submitOrder', {
         customerCode: code,
         orderNumber: num,
