@@ -415,8 +415,10 @@
         salesRepName = '';
         salesRepEmail.value = '';
         salesRepPassword.value = '';
-        loginBadge.classList.remove('show');
-        loginBadgeText.textContent = '';
+        if (loginBadge) {
+          loginBadge.classList.remove('show');
+          loginBadgeText.textContent = '';
+        }
       }
       
       if (roleSelect.value !== 'Supervisor') {
@@ -441,8 +443,10 @@
         isSupervisorAuth = true;
         supervisorPw = pw;
         hidePasswordModal();
-        loginBadge.classList.add('show');
-        loginBadgeText.textContent = 'Logged in as: Supervisor';
+        if (loginBadge) {
+          loginBadge.classList.add('show');
+          loginBadgeText.textContent = 'Logged in as: Supervisor';
+        }
         updateUI();
         showMsg('Supervisor authenticated', 'success');
       } else {
@@ -471,8 +475,10 @@
         isSalesRepLoggedIn = true;
         salesRepName = res.name;
         salesRepLoginMsg.style.display = 'none';
-        loginBadge.classList.add('show');
-        loginBadgeText.textContent = `Logged in as: ${res.name}`;
+        if (loginBadge) {
+          loginBadge.classList.add('show');
+          loginBadgeText.textContent = `Logged in as: ${res.name}`;
+        }
         btnSalesRepLogin.textContent = 'Logged In ✓';
         btnSalesRepLogin.disabled = true;
         btnSalesRepLogin.style.background = '#22c55e';
@@ -810,8 +816,10 @@
       btnSalesRepLogin.disabled = false;
       btnSalesRepLogin.textContent = 'Login';
       btnSalesRepLogin.style.background = '';
-      loginBadge.classList.remove('show');
-      loginBadgeText.textContent = '';
+      if (loginBadge) {
+        loginBadge.classList.remove('show');
+        loginBadgeText.textContent = '';
+      }
       
       // Clear form
       customerCode.value = '';
