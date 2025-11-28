@@ -55,6 +55,9 @@
     .modal h3{margin-bottom:10px;font-size:16px;color:#333}
     .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
     .hint{font-size:12px;color:#dc2626;margin-top:8px;display:none}
+    .login-badge{background:linear-gradient(135deg,#10b981 0%,#059669 100%);color:#fff;padding:12px 20px;border-radius:8px;text-align:center;font-weight:600;font-size:15px;margin-bottom:16px;box-shadow:0 4px 12px rgba(16,185,129,0.3);display:none}
+    .login-badge.show{display:block}
+    .login-badge .icon{font-size:18px;margin-right:8px}
     @media(max-width:640px){
       .btn-row{flex-direction:column}
       .btn.small{width:100%}
@@ -266,7 +269,8 @@
     const salesRepPassword = $('salesRepPassword');
     const btnSalesRepLogin = $('btnSalesRepLogin');
     const salesRepLoginMsg = $('salesRepLoginMsg');
-    const loggedInUser = $('loggedInUser');
+    const loginBadge = $('loginBadge');
+    const loginBadgeText = $('loginBadgeText');
     const actionButtons = $('actionButtons');
     const btnViewLeads = $('btnViewLeads');
     const btnViewOrders = $('btnViewOrders');
@@ -411,7 +415,8 @@
         salesRepName = '';
         salesRepEmail.value = '';
         salesRepPassword.value = '';
-        if (loggedInUser) loggedInUser.textContent = '';
+        loginBadge.classList.remove('show');
+        loginBadgeText.textContent = '';
       }
       
       if (roleSelect.value !== 'Supervisor') {
@@ -436,7 +441,8 @@
         isSupervisorAuth = true;
         supervisorPw = pw;
         hidePasswordModal();
-        if (loggedInUser) loggedInUser.textContent = '👤 Logged in as: Supervisor';
+        loginBadge.classList.add('show');
+        loginBadgeText.textContent = 'Logged in as: Supervisor';
         updateUI();
         showMsg('Supervisor authenticated', 'success');
       } else {
@@ -465,7 +471,8 @@
         isSalesRepLoggedIn = true;
         salesRepName = res.name;
         salesRepLoginMsg.style.display = 'none';
-        if (loggedInUser) loggedInUser.textContent = `👤 Logged in as: ${res.name}`;
+        loginBadge.classList.add('show');
+        loginBadgeText.textContent = `Logged in as: ${res.name}`;
         btnSalesRepLogin.textContent = 'Logged In ✓';
         btnSalesRepLogin.disabled = true;
         btnSalesRepLogin.style.background = '#22c55e';
@@ -803,7 +810,8 @@
       btnSalesRepLogin.disabled = false;
       btnSalesRepLogin.textContent = 'Login';
       btnSalesRepLogin.style.background = '';
-      if (loggedInUser) loggedInUser.textContent = '';
+      loginBadge.classList.remove('show');
+      loginBadgeText.textContent = '';
       
       // Clear form
       customerCode.value = '';
