@@ -778,8 +778,12 @@
         }
 
         if (updatesMade.length > 0) {
-          showMsg(updatesMade.join(' and ') + ' updated successfully', 'success');
-          btnLoad.click();
+          showMsg(updatesMade.join(' and ') + ' updated successfully. You have been logged out.', 'success');
+          
+          // Auto-logout after successful submit
+          setTimeout(() => {
+            logoutSalesRep();
+          }, 2000); // Wait 2 seconds so user can see success message
         } else if (errors.length > 0) {
           showMsg(errors.join('; '), 'error');
         } else {
@@ -787,6 +791,39 @@
         }
       }
     });
+
+    // ========== LOGOUT FUNCTION ==========
+    function logoutSalesRep() {
+      isSalesRepLoggedIn = false;
+      salesRepName = '';
+      salesRepEmail.value = '';
+      salesRepPassword.value = '';
+      salesRepEmail.disabled = false;
+      salesRepPassword.disabled = false;
+      btnSalesRepLogin.disabled = false;
+      btnSalesRepLogin.textContent = 'Login';
+      btnSalesRepLogin.style.background = '';
+      if (loggedInUser) loggedInUser.textContent = '';
+      
+      // Clear form
+      customerCode.value = '';
+      qualification.value = '';
+      presentation.value = '';
+      kycOnboarding.value = '';
+      qualificationOther.value = '';
+      presentationOther.value = '';
+      currentLead = null;
+      
+      // Hide sections
+      detailsSection.classList.add('hidden');
+      leadsSection.classList.add('hidden');
+      ordersSection.classList.add('hidden');
+      qualificationOtherBox.classList.add('hidden');
+      presentationOtherBox.classList.add('hidden');
+      
+      updateUI();
+      showMsg('You have been logged out. Please login again to continue.', 'info');
+    }
 
     // Init
     updateUI();
