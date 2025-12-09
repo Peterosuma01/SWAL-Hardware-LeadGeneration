@@ -60,10 +60,10 @@
     .login-badge.show{display:block}
     .login-badge .icon{font-size:18px;margin-right:8px}
     
-    /* NEW: Dashboard Styles */
+    /* Dashboard Styles */
     .dashboard{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:12px;padding:20px;margin-bottom:20px;color:#fff;box-shadow:0 8px 24px rgba(102,126,234,0.3)}
     .dashboard-title{font-size:18px;font-weight:700;margin-bottom:16px;text-align:center}
-    .dashboard-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+    .dashboard-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px}
     .metric-card{background:rgba(255,255,255,0.15);backdrop-filter:blur(10px);border-radius:8px;padding:14px;text-align:center;border:1px solid rgba(255,255,255,0.2)}
     .metric-value{font-size:28px;font-weight:700;margin-bottom:4px}
     .metric-label{font-size:12px;opacity:0.9;text-transform:uppercase;letter-spacing:0.5px}
@@ -78,8 +78,9 @@
       .field-inline>.btn{width:100%;min-height:48px}
       input[type="text"],input[type="password"],input[type="email"],input[type="number"],select{font-size:16px;padding:14px;min-height:50px}
       h1{font-size:20px}
-      .dashboard-metrics{grid-template-columns:1fr}
+      .dashboard-metrics{grid-template-columns:1fr 1fr}
       .metric-card{padding:12px}
+      .metric-value{font-size:24px}
     }
   </style>
 </head>
@@ -98,7 +99,7 @@
       <span id="loginBadgeText"></span>
     </div>
 
-    <!-- NEW: Supervisor Dashboard -->
+    <!-- Supervisor Dashboard -->
     <div id="supervisorDashboard" class="dashboard hidden">
       <div class="dashboard-title">📊 Supervisor Dashboard</div>
       <div class="dashboard-metrics">
@@ -117,6 +118,14 @@
         <div class="metric-card">
           <div class="metric-value" id="metricApprovedLeads">0</div>
           <div class="metric-label">Approved Leads</div>
+        </div>
+        <div class="metric-card" style="background:rgba(34,197,94,0.2);border-color:rgba(34,197,94,0.3)">
+          <div class="metric-value" id="metricConvertedLeads">0</div>
+          <div class="metric-label">Converted Leads</div>
+        </div>
+        <div class="metric-card" style="background:rgba(34,197,94,0.2);border-color:rgba(34,197,94,0.3)">
+          <div class="metric-value" id="metricConversionRate">0%</div>
+          <div class="metric-label">Conversion Rate</div>
         </div>
       </div>
       <div class="dashboard-actions">
@@ -360,12 +369,14 @@
     const btnCancelPassword = $('btnCancelPassword');
     const btnConfirmPassword = $('btnConfirmPassword');
     
-    // NEW: Dashboard elements
+    // Dashboard elements
     const supervisorDashboard = $('supervisorDashboard');
     const metricTotalLeads = $('metricTotalLeads');
     const metricQualifiedLeads = $('metricQualifiedLeads');
     const metricQualificationRate = $('metricQualificationRate');
     const metricApprovedLeads = $('metricApprovedLeads');
+    const metricConvertedLeads = $('metricConvertedLeads');
+    const metricConversionRate = $('metricConversionRate');
     const btnRefreshDashboard = $('btnRefreshDashboard');
     const btnViewApprovedLeads = $('btnViewApprovedLeads');
 
@@ -394,7 +405,7 @@
       setTimeout(() => message.style.display = 'none', 5000);
     }
 
-    // ========== NEW: LOAD DASHBOARD ==========
+    // ========== LOAD DASHBOARD ==========
     async function loadDashboard() {
       if (!isSupervisorAuth || !supervisorPw) return;
       
@@ -406,13 +417,15 @@
         metricQualifiedLeads.textContent = res.data.qualifiedLeads;
         metricQualificationRate.textContent = res.data.qualificationRate + '%';
         metricApprovedLeads.textContent = res.data.approvedLeadsCount;
+        metricConvertedLeads.textContent = res.data.convertedLeads;
+        metricConversionRate.textContent = res.data.conversionRate + '%';
         supervisorDashboard.classList.remove('hidden');
       } else {
         showMsg('Failed to load dashboard: ' + res.message, 'error');
       }
     }
 
-    // ========== NEW: DASHBOARD BUTTON HANDLERS ==========
+    // ========== DASHBOARD BUTTON HANDLERS ==========
     btnRefreshDashboard.addEventListener('click', () => {
       loadDashboard();
       showMsg('Dashboard refreshed', 'success');
@@ -436,7 +449,6 @@
     function updateUI() {
       const role = roleSelect.value;
       
-      // Show/hide dashboard for supervisor
       if (role === 'Supervisor' && isSupervisorAuth) {
         supervisorDashboard.classList.remove('hidden');
       } else {
@@ -546,7 +558,7 @@
           loginBadgeText.textContent = 'Logged in as: Supervisor';
         }
         updateUI();
-        loadDashboard(); // NEW: Load dashboard on login
+        loadDashboard();
         showMsg('Supervisor authenticated', 'success');
       } else {
         passwordHint.textContent = res.message || 'Invalid password';
@@ -811,7 +823,7 @@
       if (res.success) {
         showMsg(`Lead ${action.toLowerCase()}`, 'success');
         btnLoad.click();
-        loadDashboard(); // NEW: Refresh dashboard after update
+        loadDashboard();
       } else {
         showMsg(res.message, 'error');
       }
@@ -844,7 +856,7 @@
         if (res.success) { 
           showMsg('Qualification updated', 'success'); 
           btnLoad.click(); 
-          loadDashboard(); // NEW: Refresh dashboard after update
+          loadDashboard();
         }
         else showMsg(res.message, 'error');
       } else if (role === 'SalesRep') {
