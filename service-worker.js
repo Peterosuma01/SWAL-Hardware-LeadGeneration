@@ -1,4 +1,4 @@
-const CACHE_NAME = 'steelwool-v20';
+const CACHE_NAME = 'steelwool-v21';
 const OFFLINE_URL = '/offline.html';
 
 // Files to cache immediately on install
