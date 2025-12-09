@@ -78,13 +78,13 @@
       </div>
       <p class="subtitle">Hardware Lead Generation Follow-up</p>
     </div>
+<!-- Login Badge -->
+<div id="loginBadge" class="login-badge">
+  <span class="icon">👨‍💼</span>
+  <span id="loginBadgeText"></span>
+</div>
 
-    <!-- Login Badge -->
-    <div id="loginBadge" class="login-badge">
-      <span class="icon">👨‍💼</span>
-      <span id="loginBadgeText"></span>
-    </div>
-
+<div id="app">
     <div id="app">
       <!-- Role Selection -->
       <div class="form-group">
@@ -117,26 +117,6 @@
         <button class="btn small btn-blue" id="btnViewOrders">View Orders Placed</button>
         <button class="btn small btn-blue hidden" id="btnViewQualified">View Qualified Leads</button>
         <button class="btn small btn-teal hidden" id="btnPlaceOrder">Place Order</button>
-      </div>
-
-      <!-- Supervisor Dashboard -->
-      <div id="supervisorDashboard" class="hidden" style="margin-bottom:20px">
-        <div class="section-title">Dashboard Overview</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px">
-          <div style="background:linear-gradient(135deg,#3b82f6 0%,#2563eb 100%);color:#fff;padding:16px;border-radius:8px;box-shadow:0 4px 12px rgba(59,130,246,0.3)">
-            <div style="font-size:12px;opacity:0.9;margin-bottom:4px">Total Generated Leads</div>
-            <div style="font-size:28px;font-weight:700" id="totalLeads">-</div>
-          </div>
-          <div style="background:linear-gradient(135deg,#10b981 0%,#059669 100%);color:#fff;padding:16px;border-radius:8px;box-shadow:0 4px 12px rgba(16,185,129,0.3)">
-            <div style="font-size:12px;opacity:0.9;margin-bottom:4px">Qualified Leads</div>
-            <div style="font-size:28px;font-weight:700" id="qualifiedLeads">-</div>
-          </div>
-          <div style="background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);color:#fff;padding:16px;border-radius:8px;box-shadow:0 4px 12px rgba(245,158,11,0.3)">
-            <div style="font-size:12px;opacity:0.9;margin-bottom:4px">Qualification Rate</div>
-            <div style="font-size:28px;font-weight:700" id="qualificationRate">-</div>
-          </div>
-        </div>
-        <button class="btn btn-green" id="btnViewApproved" style="width:100%">📋 View Approved Leads</button>
       </div>
 
       <!-- Customer Code Input -->
@@ -297,11 +277,6 @@
     const salesRepLoginMsg = $('salesRepLoginMsg');
     const loginBadge = $('loginBadge');
     const loginBadgeText = $('loginBadgeText');
-    const supervisorDashboard = $('supervisorDashboard');
-    const totalLeads = $('totalLeads');
-    const qualifiedLeads = $('qualifiedLeads');
-    const qualificationRate = $('qualificationRate');
-    const btnViewApproved = $('btnViewApproved');
     const actionButtons = $('actionButtons');
     const btnViewLeads = $('btnViewLeads');
     const btnViewOrders = $('btnViewOrders');
@@ -393,7 +368,6 @@
       btnViewOrders.classList.toggle('hidden', role !== 'Supervisor');
       btnViewQualified.classList.toggle('hidden', role !== 'SalesRep');
       btnPlaceOrder.classList.toggle('hidden', role !== 'SalesRep');
-      supervisorDashboard.classList.toggle('hidden', role !== 'Supervisor' || !isSupervisorAuth);
       approvalButtons.classList.toggle('hidden', role !== 'Supervisor' || !isSupervisorAuth);
       assignSalesRep.classList.toggle('hidden', role !== 'Supervisor' || !isSupervisorAuth);
       qualification.disabled = role !== 'Supervisor' || !isSupervisorAuth;
@@ -480,7 +454,6 @@
           loginBadgeText.textContent = 'Logged in as: Supervisor';
         }
         updateUI();
-        loadDashboardStats(); // Load dashboard stats after login
         showMsg('Supervisor authenticated', 'success');
       } else {
         passwordHint.textContent = res.message || 'Invalid password';
@@ -585,37 +558,6 @@
     }
 
     // ========== VIEW LEADS ==========
-    async function loadDashboardStats() {
-      const res = await api('getAllGeneratedLeads');
-      if (!res.success) return;
-      
-      const total = res.data.length;
-      const qualified = res.data.filter(lead => {
-        // Check if qualification is YES or if it's been approved
-        return lead.qualification === 'YES' || lead.qualification?.startsWith('YES');
-      }).length;
-      const rate = total > 0 ? Math.round((qualified / total) * 100) : 0;
-      
-      totalLeads.textContent = total;
-      qualifiedLeads.textContent = qualified;
-      qualificationRate.textContent = rate + '%';
-    }
-
-    btnViewApproved.addEventListener('click', async () => {
-      const res = await api('getAllGeneratedLeads');
-      if (!res.success) { showMsg(res.message, 'error'); return; }
-      
-      // Filter only approved leads
-      const approvedLeads = res.data.filter(lead => lead.approval === 'Approved');
-      
-      if (approvedLeads.length === 0) {
-        showMsg('No approved leads found', 'info');
-        return;
-      }
-      
-      renderLeadsTable(approvedLeads, 'Approved Leads');
-    });
-
     btnViewLeads.addEventListener('click', async () => {
       const res = await api('getAllGeneratedLeads');
       if (!res.success) { showMsg(res.message, 'error'); return; }
@@ -629,3 +571,289 @@
       const res = await api('getQualifiedLeadsBySalesRep', {
         salesRepEmail: salesRepEmail.value.trim(),
         salesRepPassword: salesRepPassword.value.trim()
+      });
+      if (!res.success) { showMsg(res.message, 'error'); return; }
+      if (res.data.length === 0) { showMsg('No qualified leads found', 'info'); return; }
+      renderLeadsTable(res.data, 'Qualified Leads');
+    });
+
+    btnViewOrders.addEventListener('click', async () => {
+      const res = await api('getOrdersSummary');
+      if (!res.success) { showMsg(res.message, 'error'); return; }
+      if (res.data.length === 0) { showMsg('No orders yet', 'info'); return; }
+      renderOrdersTable(res.data);
+    });
+
+    function renderLeadsTable(leads, title) {
+      leadsTitle.textContent = title;
+      const headers = ['Region','Area','Location','Store Name','Contact','Mobile','Category','Brands','Freq','Supplier','Dist Type','Weldplus','Feedback','Code'];
+      leadsTable.innerHTML = '<thead><tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr></thead><tbody>' +
+        leads.map(l => `<tr><td>${l.region}</td><td>${l.area}</td><td>${l.location}</td><td>${l.storeName}</td><td>${l.contactPerson}</td><td>${l.mobileNumber}</td><td>${l.outletCategory}</td><td>${l.brandsStocked}</td><td>${l.purchaseFrequency}</td><td>${l.mainSupplier}</td><td>${l.distributorType}</td><td>${l.weldplusAwareness}</td><td>${l.additionalFeedback}</td><td>${l.customerCode}</td></tr>`).join('') +
+        '</tbody>';
+      leadsSection.classList.remove('hidden');
+      detailsSection.classList.add('hidden');
+      ordersSection.classList.add('hidden');
+    }
+
+    function renderOrdersTable(orders) {
+      leadsTitle.textContent = 'Orders Summary';
+      leadsTable.innerHTML = '<thead><tr><th>Customer Code</th><th>Orders</th><th>Total Kgs</th><th>Avg Kgs</th></tr></thead><tbody>' +
+        orders.map(o => `<tr><td>${o.customerCode}</td><td>${o.numberOfOrders}</td><td>${o.totalQuantity.toFixed(2)}</td><td>${o.averageQuantity.toFixed(2)}</td></tr>`).join('') +
+        '</tbody>';
+      leadsSection.classList.remove('hidden');
+      detailsSection.classList.add('hidden');
+      ordersSection.classList.add('hidden');
+    }
+
+    btnCloseLeads.addEventListener('click', () => leadsSection.classList.add('hidden'));
+
+    // ========== QUALIFICATION/PRESENTATION CHANGE HANDLERS ==========
+    qualification.addEventListener('change', () => {
+      qualificationOtherBox.classList.toggle('hidden', qualification.value !== 'Other');
+      if (qualification.value !== 'Other') qualificationOther.value = '';
+    });
+
+    presentation.addEventListener('change', () => {
+      presentationOtherBox.classList.toggle('hidden', presentation.value !== 'Other');
+      if (presentation.value !== 'Other') presentationOther.value = '';
+    });
+
+    // ========== ORDERS ==========
+    btnPlaceOrder.addEventListener('click', () => {
+      ordersSection.classList.remove('hidden');
+      leadsSection.classList.add('hidden');
+      detailsSection.classList.add('hidden');
+      orderCustomerCode.value = '';
+      orderNumber.innerHTML = '<option value="">-- Check status first --</option>';
+      orderNumber.disabled = true;
+      orderQuantity.value = '';
+      orderStatus.classList.add('hidden');
+      currentOrderStatus = null;
+    });
+
+    btnCloseOrders.addEventListener('click', () => ordersSection.classList.add('hidden'));
+
+    btnCheckStatus.addEventListener('click', async () => {
+      const code = orderCustomerCode.value.trim();
+      if (!code) { showMsg('Enter customer code', 'error'); return; }
+      if (!isSalesRepLoggedIn) {
+        showMsg('Please login first', 'error'); return;
+      }
+      const res = await api('getAvailableOrders', {
+        customerCode: code,
+        salesRepEmail: salesRepEmail.value.trim(),
+        salesRepPassword: salesRepPassword.value.trim()
+      });
+      if (!res.success) { showMsg(res.message, 'error'); orderStatus.classList.add('hidden'); return; }
+      currentOrderStatus = res;
+      updateOrderDropdown(res);
+      let html = '';
+      if (res.submittedOrders.length === 0) html = 'No orders yet. You can submit Order 1.';
+      else if (res.nextAvailableOrder === -1) html = 'All 3 orders submitted.';
+      else html = `Submitted: Order ${res.submittedOrders.join(', ')}<br><strong>Next:</strong> Order ${res.nextAvailableOrder}`;
+      orderStatus.innerHTML = html;
+      orderStatus.classList.remove('hidden');
+    });
+
+    function updateOrderDropdown(status) {
+      let opts = '<option value="">-- Select Order --</option>';
+      for (let i = 1; i <= 3; i++) {
+        const submitted = status.submittedOrders.includes(i);
+        const available = i === status.nextAvailableOrder;
+        const disabled = submitted || (!available && status.nextAvailableOrder !== -1);
+        const label = submitted ? `Order ${i} (Done)` : available ? `Order ${i} (Available)` : `Order ${i}`;
+        opts += `<option value="Order ${i}" ${disabled ? 'disabled' : ''}>${label}</option>`;
+      }
+      orderNumber.innerHTML = opts;
+      orderNumber.disabled = status.nextAvailableOrder === -1;
+    }
+
+    btnSubmitOrder.addEventListener('click', async () => {
+      const code = orderCustomerCode.value.trim();
+      const num = orderNumber.value;
+      const qty = parseFloat(orderQuantity.value);
+      if (!code || !num || !qty || qty <= 0) { showMsg('Fill all fields', 'error'); return; }
+      if (!currentOrderStatus) { showMsg('Check status first', 'error'); return; }
+      if (!isSalesRepLoggedIn) { showMsg('Please login first', 'error'); return; }
+      const res = await api('submitOrder', {
+        customerCode: code,
+        orderNumber: num,
+        quantity: qty,
+        salesRepEmail: salesRepEmail.value.trim(),
+        salesRepPassword: salesRepPassword.value.trim()
+      });
+      if (res.success) {
+        showMsg(res.message, 'success');
+        orderQuantity.value = '';
+        btnCheckStatus.click();
+      } else {
+        showMsg(res.message, 'error');
+      }
+    });
+
+    // ========== APPROVE / DECLINE ==========
+    btnApprove.addEventListener('click', () => updateQualification('Approved'));
+    btnDecline.addEventListener('click', () => updateQualification('Declined'));
+
+    async function updateQualification(action) {
+      if (!currentLead) { showMsg('Load a lead first', 'error'); return; }
+      if (!qualification.value) { showMsg('Select qualification first', 'error'); return; }
+      
+      // If "Other" is selected, validate custom text
+      let qualValue = qualification.value;
+      if (qualValue === 'Other') {
+        const customText = qualificationOther.value.trim();
+        if (!customText) {
+          showMsg('Please specify the qualification reason', 'error');
+          return;
+        }
+        qualValue = 'Other: ' + customText;
+      }
+      
+      const res = await api('updateQualificationBySupervisor', {
+        customerCode: customerCode.value.trim(),
+        qualificationValue: qualValue,
+        approvalAction: action,
+        salesRepEmail: assignEmail.value.trim(),
+        password: supervisorPw
+      });
+      if (res.success) {
+        showMsg(`Lead ${action.toLowerCase()}`, 'success');
+        btnLoad.click();
+      } else {
+        showMsg(res.message, 'error');
+      }
+    }
+
+    // ========== SUBMIT ==========
+    btnSubmit.addEventListener('click', async () => {
+      const role = roleSelect.value;
+      const code = customerCode.value.trim();
+      if (!currentLead || !code) { showMsg('Load a lead first', 'error'); return; }
+
+      if (role === 'Supervisor') {
+        // If "Other" is selected, validate custom text
+        let qualValue = qualification.value;
+        if (qualValue === 'Other') {
+          const customText = qualificationOther.value.trim();
+          if (!customText) {
+            showMsg('Please specify the qualification reason', 'error');
+            return;
+          }
+          qualValue = 'Other: ' + customText;
+        }
+        
+        const res = await api('updateQualificationBySupervisor', {
+          customerCode: code,
+          qualificationValue: qualValue,
+          approvalAction: '',
+          salesRepEmail: assignEmail.value.trim(),
+          password: supervisorPw
+        });
+        if (res.success) { showMsg('Qualification updated', 'success'); btnLoad.click(); }
+        else showMsg(res.message, 'error');
+      } else if (role === 'SalesRep') {
+        // Update both Presentation and KYC Onboarding
+        let updatesMade = [];
+        let errors = [];
+
+        // Update Presentation if changed
+        if (presentation.value) {
+          let presValue = presentation.value;
+          
+          // If "Other" is selected, validate and format custom text
+          if (presValue === 'Other') {
+            const customText = presentationOther.value.trim();
+            if (!customText) {
+              showMsg('Please specify the presentation reason', 'error');
+              return;
+            }
+            presValue = 'Other: ' + customText;
+          }
+          
+          const currentPres = currentLead.presentation || '';
+          if (presValue !== currentPres) {
+            const presRes = await api('updatePresentationBySalesRep', {
+              customerCode: code,
+              presentationValue: presValue,
+              salesRepEmail: salesRepEmail.value.trim(),
+              password: salesRepPassword.value.trim()
+            });
+            if (presRes.success) updatesMade.push('Presentation');
+            else errors.push('Presentation: ' + presRes.message);
+          }
+        }
+
+        // Update KYC Onboarding if changed
+        if (kycOnboarding.value && kycOnboarding.value !== currentLead.kycOnboarding) {
+          const kycRes = await api('updateKYCOnboardingBySalesRep', {
+            customerCode: code,
+            kycValue: kycOnboarding.value,
+            salesRepEmail: salesRepEmail.value.trim(),
+            password: salesRepPassword.value.trim()
+          });
+          if (kycRes.success) updatesMade.push('KYC Onboarding');
+          else errors.push('KYC: ' + kycRes.message);
+        }
+
+        if (updatesMade.length > 0) {
+          showMsg(updatesMade.join(' and ') + ' updated successfully. You have been logged out.', 'success');
+          
+          // Auto-logout after successful submit
+          setTimeout(() => {
+            logoutSalesRep();
+          }, 2000); // Wait 2 seconds so user can see success message
+        } else if (errors.length > 0) {
+          showMsg(errors.join('; '), 'error');
+        } else {
+          showMsg('No changes to save', 'info');
+        }
+      }
+    });
+
+    // ========== LOGOUT FUNCTION ==========
+    function logoutSalesRep() {
+      isSalesRepLoggedIn = false;
+      salesRepName = '';
+      salesRepEmail.value = '';
+      salesRepPassword.value = '';
+      salesRepEmail.disabled = false;
+      salesRepPassword.disabled = false;
+      btnSalesRepLogin.disabled = false;
+      btnSalesRepLogin.textContent = 'Login';
+      btnSalesRepLogin.style.background = '';
+      if (loginBadge) {
+        loginBadge.classList.remove('show');
+        loginBadgeText.textContent = '';
+      }
+      
+      // Clear form
+      customerCode.value = '';
+      qualification.value = '';
+      presentation.value = '';
+      kycOnboarding.value = '';
+      qualificationOther.value = '';
+      presentationOther.value = '';
+      currentLead = null;
+      
+      // Hide sections
+      detailsSection.classList.add('hidden');
+      leadsSection.classList.add('hidden');
+      ordersSection.classList.add('hidden');
+      qualificationOtherBox.classList.add('hidden');
+      presentationOtherBox.classList.add('hidden');
+      
+      updateUI();
+      showMsg('You have been logged out. Please login again to continue.', 'info');
+    }
+
+    // Init
+    updateUI();
+
+    // Register SW
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js').catch(e => console.log('SW error', e));
+    }
+  </script>
+</body>
+</html>
