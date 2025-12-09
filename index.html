@@ -31,6 +31,7 @@
     .btn-blue{background:linear-gradient(135deg,#3b82f6 0%,#2563eb 100%)}
     .btn-gray{background:#9ca3af}
     .btn-teal{background:linear-gradient(135deg,#10b981 0%,#059669 100%)}
+    .btn-purple{background:linear-gradient(135deg,#a855f7 0%,#9333ea 100%)}
     .message{padding:12px;border-radius:8px;margin-top:14px;display:none;font-size:13px}
     .message.success{background:#d4edda;color:#155724;border:1px solid #c3e6cb;display:block}
     .message.error{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;display:block}
@@ -58,6 +59,16 @@
     .login-badge{background:linear-gradient(135deg,#52595d 0%,#040720 100%);color:#fff;padding:12px 20px;border-radius:8px;text-align:center;font-weight:600;font-size:15px;margin-bottom:16px;box-shadow:0 4px 12px rgba(16,185,129,0.3);display:none}
     .login-badge.show{display:block}
     .login-badge .icon{font-size:18px;margin-right:8px}
+    
+    /* NEW: Dashboard Styles */
+    .dashboard{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:12px;padding:20px;margin-bottom:20px;color:#fff;box-shadow:0 8px 24px rgba(102,126,234,0.3)}
+    .dashboard-title{font-size:18px;font-weight:700;margin-bottom:16px;text-align:center}
+    .dashboard-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+    .metric-card{background:rgba(255,255,255,0.15);backdrop-filter:blur(10px);border-radius:8px;padding:14px;text-align:center;border:1px solid rgba(255,255,255,0.2)}
+    .metric-value{font-size:28px;font-weight:700;margin-bottom:4px}
+    .metric-label{font-size:12px;opacity:0.9;text-transform:uppercase;letter-spacing:0.5px}
+    .dashboard-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+    
     @media(max-width:640px){
       .btn-row{flex-direction:column}
       .btn.small{width:100%}
@@ -67,6 +78,8 @@
       .field-inline>.btn{width:100%;min-height:48px}
       input[type="text"],input[type="password"],input[type="email"],input[type="number"],select{font-size:16px;padding:14px;min-height:50px}
       h1{font-size:20px}
+      .dashboard-metrics{grid-template-columns:1fr}
+      .metric-card{padding:12px}
     }
   </style>
 </head>
@@ -78,13 +91,40 @@
       </div>
       <p class="subtitle">Hardware Lead Generation Follow-up</p>
     </div>
-<!-- Login Badge -->
-<div id="loginBadge" class="login-badge">
-  <span class="icon">👨‍💼</span>
-  <span id="loginBadgeText"></span>
-</div>
 
-<div id="app">
+    <!-- Login Badge -->
+    <div id="loginBadge" class="login-badge">
+      <span class="icon">👨‍💼</span>
+      <span id="loginBadgeText"></span>
+    </div>
+
+    <!-- NEW: Supervisor Dashboard -->
+    <div id="supervisorDashboard" class="dashboard hidden">
+      <div class="dashboard-title">📊 Supervisor Dashboard</div>
+      <div class="dashboard-metrics">
+        <div class="metric-card">
+          <div class="metric-value" id="metricTotalLeads">0</div>
+          <div class="metric-label">Total Leads</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="metricQualifiedLeads">0</div>
+          <div class="metric-label">Qualified Leads</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="metricQualificationRate">0%</div>
+          <div class="metric-label">Qualification Rate</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="metricApprovedLeads">0</div>
+          <div class="metric-label">Approved Leads</div>
+        </div>
+      </div>
+      <div class="dashboard-actions">
+        <button class="btn small" id="btnRefreshDashboard" style="background:rgba(255,255,255,0.2)">🔄 Refresh</button>
+        <button class="btn small" id="btnViewApprovedLeads" style="background:rgba(34,197,94,0.9)">✅ View Approved Leads</button>
+      </div>
+    </div>
+
     <div id="app">
       <!-- Role Selection -->
       <div class="form-group">
@@ -266,6 +306,7 @@
     let currentOrderStatus = null;
     let salesRepName = '';
     let isSalesRepLoggedIn = false;
+    let dashboardData = null;
 
     // ========== ELEMENTS ==========
     const $ = id => document.getElementById(id);
@@ -318,6 +359,15 @@
     const passwordHint = $('passwordHint');
     const btnCancelPassword = $('btnCancelPassword');
     const btnConfirmPassword = $('btnConfirmPassword');
+    
+    // NEW: Dashboard elements
+    const supervisorDashboard = $('supervisorDashboard');
+    const metricTotalLeads = $('metricTotalLeads');
+    const metricQualifiedLeads = $('metricQualifiedLeads');
+    const metricQualificationRate = $('metricQualificationRate');
+    const metricApprovedLeads = $('metricApprovedLeads');
+    const btnRefreshDashboard = $('btnRefreshDashboard');
+    const btnViewApprovedLeads = $('btnViewApprovedLeads');
 
     // ========== API CALL ==========
     async function api(action, data = {}) {
@@ -344,18 +394,61 @@
       setTimeout(() => message.style.display = 'none', 5000);
     }
 
+    // ========== NEW: LOAD DASHBOARD ==========
+    async function loadDashboard() {
+      if (!isSupervisorAuth || !supervisorPw) return;
+      
+      const res = await api('getSupervisorDashboard', { password: supervisorPw });
+      
+      if (res.success) {
+        dashboardData = res.data;
+        metricTotalLeads.textContent = res.data.totalLeads;
+        metricQualifiedLeads.textContent = res.data.qualifiedLeads;
+        metricQualificationRate.textContent = res.data.qualificationRate + '%';
+        metricApprovedLeads.textContent = res.data.approvedLeadsCount;
+        supervisorDashboard.classList.remove('hidden');
+      } else {
+        showMsg('Failed to load dashboard: ' + res.message, 'error');
+      }
+    }
+
+    // ========== NEW: DASHBOARD BUTTON HANDLERS ==========
+    btnRefreshDashboard.addEventListener('click', () => {
+      loadDashboard();
+      showMsg('Dashboard refreshed', 'success');
+    });
+
+    btnViewApprovedLeads.addEventListener('click', () => {
+      if (!dashboardData || !dashboardData.approvedLeads) {
+        showMsg('No dashboard data. Click Refresh first.', 'error');
+        return;
+      }
+      
+      if (dashboardData.approvedLeads.length === 0) {
+        showMsg('No approved leads found', 'info');
+        return;
+      }
+      
+      renderLeadsTable(dashboardData.approvedLeads, 'Approved Leads (' + dashboardData.approvedLeadsCount + ')');
+    });
+
     // ========== UI UPDATE ==========
     function updateUI() {
       const role = roleSelect.value;
       
-      // Show/hide Sales Rep Auth section
+      // Show/hide dashboard for supervisor
+      if (role === 'Supervisor' && isSupervisorAuth) {
+        supervisorDashboard.classList.remove('hidden');
+      } else {
+        supervisorDashboard.classList.add('hidden');
+      }
+      
       if (role === 'SalesRep') {
         salesRepAuth.classList.remove('hidden');
       } else {
         salesRepAuth.classList.add('hidden');
       }
       
-      // Show action buttons based on role and login status
       if (role === 'SalesRep' && isSalesRepLoggedIn) {
         actionButtons.classList.remove('hidden');
       } else if (role === 'Supervisor') {
@@ -374,7 +467,6 @@
       presentation.disabled = role !== 'SalesRep' || !currentLead || currentLead.approval !== 'Approved' || !isSalesRepLoggedIn;
       kycOnboarding.disabled = role !== 'SalesRep' || !currentLead || currentLead.approval !== 'Approved' || !isSalesRepLoggedIn;
       
-      // Enable/disable customer code and load button based on login
       if (role === 'SalesRep') {
         customerCode.disabled = !isSalesRepLoggedIn;
         btnLoad.disabled = !isSalesRepLoggedIn;
@@ -383,7 +475,6 @@
         btnLoad.disabled = false;
       }
       
-      // Show/hide "Other" text boxes based on selection
       qualificationOtherBox.classList.toggle('hidden', qualification.value !== 'Other');
       presentationOtherBox.classList.toggle('hidden', presentation.value !== 'Other');
       
@@ -407,6 +498,7 @@
       detailsSection.classList.add('hidden');
       leadsSection.classList.add('hidden');
       ordersSection.classList.add('hidden');
+      supervisorDashboard.classList.add('hidden');
       qualification.value = '';
       presentation.value = '';
       kycOnboarding.value = '';
@@ -454,6 +546,7 @@
           loginBadgeText.textContent = 'Logged in as: Supervisor';
         }
         updateUI();
+        loadDashboard(); // NEW: Load dashboard on login
         showMsg('Supervisor authenticated', 'success');
       } else {
         passwordHint.textContent = res.message || 'Invalid password';
@@ -521,7 +614,6 @@
       kycOnboarding.value = currentLead.kycOnboarding || '';
       assignEmail.value = currentLead.salesRepEmail || '';
       
-      // Parse "Other: custom text" format
       if (currentLead.qualification && currentLead.qualification.startsWith('Other: ')) {
         qualification.value = 'Other';
         qualificationOther.value = currentLead.qualification.substring(7);
@@ -699,7 +791,6 @@
       if (!currentLead) { showMsg('Load a lead first', 'error'); return; }
       if (!qualification.value) { showMsg('Select qualification first', 'error'); return; }
       
-      // If "Other" is selected, validate custom text
       let qualValue = qualification.value;
       if (qualValue === 'Other') {
         const customText = qualificationOther.value.trim();
@@ -720,6 +811,7 @@
       if (res.success) {
         showMsg(`Lead ${action.toLowerCase()}`, 'success');
         btnLoad.click();
+        loadDashboard(); // NEW: Refresh dashboard after update
       } else {
         showMsg(res.message, 'error');
       }
@@ -732,7 +824,6 @@
       if (!currentLead || !code) { showMsg('Load a lead first', 'error'); return; }
 
       if (role === 'Supervisor') {
-        // If "Other" is selected, validate custom text
         let qualValue = qualification.value;
         if (qualValue === 'Other') {
           const customText = qualificationOther.value.trim();
@@ -750,18 +841,19 @@
           salesRepEmail: assignEmail.value.trim(),
           password: supervisorPw
         });
-        if (res.success) { showMsg('Qualification updated', 'success'); btnLoad.click(); }
+        if (res.success) { 
+          showMsg('Qualification updated', 'success'); 
+          btnLoad.click(); 
+          loadDashboard(); // NEW: Refresh dashboard after update
+        }
         else showMsg(res.message, 'error');
       } else if (role === 'SalesRep') {
-        // Update both Presentation and KYC Onboarding
         let updatesMade = [];
         let errors = [];
 
-        // Update Presentation if changed
         if (presentation.value) {
           let presValue = presentation.value;
           
-          // If "Other" is selected, validate and format custom text
           if (presValue === 'Other') {
             const customText = presentationOther.value.trim();
             if (!customText) {
@@ -784,7 +876,6 @@
           }
         }
 
-        // Update KYC Onboarding if changed
         if (kycOnboarding.value && kycOnboarding.value !== currentLead.kycOnboarding) {
           const kycRes = await api('updateKYCOnboardingBySalesRep', {
             customerCode: code,
@@ -799,10 +890,9 @@
         if (updatesMade.length > 0) {
           showMsg(updatesMade.join(' and ') + ' updated successfully. You have been logged out.', 'success');
           
-          // Auto-logout after successful submit
           setTimeout(() => {
             logoutSalesRep();
-          }, 2000); // Wait 2 seconds so user can see success message
+          }, 2000);
         } else if (errors.length > 0) {
           showMsg(errors.join('; '), 'error');
         } else {
@@ -827,7 +917,6 @@
         loginBadgeText.textContent = '';
       }
       
-      // Clear form
       customerCode.value = '';
       qualification.value = '';
       presentation.value = '';
@@ -836,7 +925,6 @@
       presentationOther.value = '';
       currentLead = null;
       
-      // Hide sections
       detailsSection.classList.add('hidden');
       leadsSection.classList.add('hidden');
       ordersSection.classList.add('hidden');
