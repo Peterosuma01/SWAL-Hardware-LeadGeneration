@@ -12,7 +12,6 @@
     .container{background:#fff;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,0.3);max-width:760px;width:100%;padding:28px}
     .header{text-align:center;margin-bottom:18px;padding-bottom:12px;border-bottom:3px solid #667eea}
     .header-title{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
-    .header-logo{width:40px;height:40px;object-fit:contain}
     h1{color:#333;font-size:22px;margin-bottom:4px}
     .subtitle{color:#666;font-size:14px}
     .form-group{margin-bottom:14px}
@@ -32,6 +31,7 @@
     .btn-gray{background:#9ca3af}
     .btn-teal{background:linear-gradient(135deg,#10b981 0%,#059669 100%)}
     .btn-purple{background:linear-gradient(135deg,#a855f7 0%,#9333ea 100%)}
+    .btn-orange{background:linear-gradient(135deg,#f97316 0%,#ea580c 100%)}
     .message{padding:12px;border-radius:8px;margin-top:14px;display:none;font-size:13px}
     .message.success{background:#d4edda;color:#155724;border:1px solid #c3e6cb;display:block}
     .message.error{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;display:block}
@@ -59,8 +59,6 @@
     .login-badge{background:linear-gradient(135deg,#52595d 0%,#040720 100%);color:#fff;padding:12px 20px;border-radius:8px;text-align:center;font-weight:600;font-size:15px;margin-bottom:16px;box-shadow:0 4px 12px rgba(16,185,129,0.3);display:none}
     .login-badge.show{display:block}
     .login-badge .icon{font-size:18px;margin-right:8px}
-    
-    /* Dashboard Styles */
     .dashboard{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:12px;padding:20px;margin-bottom:20px;color:#fff;box-shadow:0 8px 24px rgba(102,126,234,0.3)}
     .dashboard-title{font-size:18px;font-weight:700;margin-bottom:16px;text-align:center}
     .dashboard-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px}
@@ -68,7 +66,19 @@
     .metric-value{font-size:28px;font-weight:700;margin-bottom:4px}
     .metric-label{font-size:12px;opacity:0.9;text-transform:uppercase;letter-spacing:0.5px}
     .dashboard-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
-    
+    /* Sales Rep Details */
+    .rep-details-card{background:#f8f9ff;border:2px solid #667eea;border-radius:10px;padding:16px;margin-top:14px}
+    .rep-details-card .rep-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+    .rep-name{font-size:16px;font-weight:700;color:#333}
+    .rep-email{font-size:13px;color:#667eea}
+    .rep-stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+    .rep-stat{background:#fff;border:1px solid #e1e8ed;border-radius:6px;padding:8px 14px;text-align:center;min-width:100px}
+    .rep-stat-value{font-size:20px;font-weight:700;color:#667eea}
+    .rep-stat-label{font-size:11px;color:#666;text-transform:uppercase}
+    .milestone-badge{display:inline-block;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600;color:#fff}
+    .milestone-1{background:#f97316}
+    .milestone-2{background:#3b82f6}
+    .milestone-3{background:#22c55e}
     @media(max-width:640px){
       .btn-row{flex-direction:column}
       .btn.small{width:100%}
@@ -81,52 +91,28 @@
       .dashboard-metrics{grid-template-columns:1fr 1fr}
       .metric-card{padding:12px}
       .metric-value{font-size:24px}
+      .rep-stats{flex-direction:column}
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <div class="header-title">
-        <h1>Steelwool (Africa) Limited</h1>
-      </div>
+      <div class="header-title"><h1>Steelwool (Africa) Limited</h1></div>
       <p class="subtitle">Hardware Lead Generation Follow-up</p>
     </div>
-
-    <!-- Login Badge -->
-    <div id="loginBadge" class="login-badge">
-      <span class="icon">👨‍💼</span>
-      <span id="loginBadgeText"></span>
-    </div>
+    <div id="loginBadge" class="login-badge"><span class="icon">👨‍💼</span><span id="loginBadgeText"></span></div>
 
     <!-- Supervisor Dashboard -->
     <div id="supervisorDashboard" class="dashboard hidden">
       <div class="dashboard-title">📊 Supervisor Dashboard</div>
       <div class="dashboard-metrics">
-        <div class="metric-card">
-          <div class="metric-value" id="metricTotalLeads">0</div>
-          <div class="metric-label">Total Leads</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-value" id="metricQualifiedLeads">0</div>
-          <div class="metric-label">Qualified Leads</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-value" id="metricQualificationRate">0%</div>
-          <div class="metric-label">Qualification Rate</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-value" id="metricApprovedLeads">0</div>
-          <div class="metric-label">Approved Leads</div>
-        </div>
-        <div class="metric-card" style="background:rgba(34,197,94,0.2);border-color:rgba(34,197,94,0.3)">
-          <div class="metric-value" id="metricConvertedLeads">0</div>
-          <div class="metric-label">Converted Leads</div>
-        </div>
-        <div class="metric-card" style="background:rgba(34,197,94,0.2);border-color:rgba(34,197,94,0.3)">
-          <div class="metric-value" id="metricConversionRate">0%</div>
-          <div class="metric-label">Conversion Rate</div>
-        </div>
+        <div class="metric-card"><div class="metric-value" id="metricTotalLeads">0</div><div class="metric-label">Total Leads</div></div>
+        <div class="metric-card"><div class="metric-value" id="metricQualifiedLeads">0</div><div class="metric-label">Qualified Leads</div></div>
+        <div class="metric-card"><div class="metric-value" id="metricQualificationRate">0%</div><div class="metric-label">Qualification Rate</div></div>
+        <div class="metric-card"><div class="metric-value" id="metricApprovedLeads">0</div><div class="metric-label">Approved Leads</div></div>
+        <div class="metric-card" style="background:rgba(34,197,94,0.2);border-color:rgba(34,197,94,0.3)"><div class="metric-value" id="metricConvertedLeads">0</div><div class="metric-label">Converted Leads</div></div>
+        <div class="metric-card" style="background:rgba(34,197,94,0.2);border-color:rgba(34,197,94,0.3)"><div class="metric-value" id="metricConversionRate">0%</div><div class="metric-label">Conversion Rate</div></div>
       </div>
       <div class="dashboard-actions">
         <button class="btn small" id="btnRefreshDashboard" style="background:rgba(255,255,255,0.2)">🔄 Refresh</button>
@@ -134,8 +120,46 @@
       </div>
     </div>
 
+    <!-- Sales Rep Details Section (Supervisor only) -->
+    <div id="salesRepDetailsSection" class="hidden">
+      <div class="section-title">👤 Sales Representative Details</div>
+      <div class="form-group">
+        <label>Select Sales Representative</label>
+        <select id="salesRepSelect">
+          <option value="">-- Select Sales Rep --</option>
+          <option value="hardware1.swal@gmail.com">VALTO ONYANGO</option>
+          <option value="mountain.swal@gmail.com">FRANCIS OBALA</option>
+          <option value="hardware2.swal@gmail.com">STEPHEN MUENDO</option>
+          <option value="hardware3.swal@gmail.com">LAVINE KISANTA</option>
+          <option value="eastern.swal@gmail.com">MUSYA KITHEKA</option>
+        </select>
+      </div>
+      <!-- Rep Info Card -->
+      <div id="repDetailsCard" class="rep-details-card hidden">
+        <div class="rep-header">
+          <div>
+            <div class="rep-name" id="repName"></div>
+            <div class="rep-email" id="repEmail"></div>
+          </div>
+        </div>
+        <div class="rep-stats">
+          <div class="rep-stat"><div class="rep-stat-value" id="repTotalLeads">0</div><div class="rep-stat-label">Generated Leads</div></div>
+          <div class="rep-stat"><div class="rep-stat-value" id="repConvertedCount">0</div><div class="rep-stat-label">Converted Leads</div></div>
+        </div>
+        <div class="btn-row" style="margin-bottom:12px">
+          <button class="btn small btn-blue" id="btnRepAllLeads">📋 View All Leads</button>
+          <button class="btn small btn-orange" id="btnRepConvertedLeads">📦 View Converted Leads</button>
+        </div>
+        <!-- Rep Leads Table -->
+        <div id="repLeadsTableSection" class="hidden">
+          <div class="section-title" id="repLeadsTitle" style="margin-top:8px">Leads</div>
+          <div class="table-wrap"><table class="leads-table" id="repLeadsTable"></table></div>
+          <button class="btn small btn-gray" id="btnCloseRepLeads" style="margin-top:8px">Close</button>
+        </div>
+      </div>
+    </div>
+
     <div id="app">
-      <!-- Role Selection -->
       <div class="form-group">
         <label>Select Role *</label>
         <select id="roleSelect">
@@ -145,815 +169,111 @@
         </select>
         <div class="meta">Supervisor: edit Qualification, Approve/Decline. Sales Rep: edit Presentation, place Orders.</div>
       </div>
-
-      <!-- Sales Rep Auth -->
       <div id="salesRepAuth" class="hidden">
-        <div class="form-group">
-          <label>Sales Rep Email *</label>
-          <input type="email" id="salesRepEmail" placeholder="salesrep@example.com">
-        </div>
-        <div class="form-group">
-          <label>Sales Rep Password *</label>
-          <input type="password" id="salesRepPassword" placeholder="Enter password">
-        </div>
+        <div class="form-group"><label>Sales Rep Email *</label><input type="email" id="salesRepEmail" placeholder="salesrep@example.com"></div>
+        <div class="form-group"><label>Sales Rep Password *</label><input type="password" id="salesRepPassword" placeholder="Enter password"></div>
         <button type="button" class="btn" id="btnSalesRepLogin" style="margin-top:8px">Login</button>
         <div id="salesRepLoginMsg" class="meta" style="margin-top:8px;color:#dc2626;display:none"></div>
       </div>
-
-      <!-- Action Buttons -->
       <div id="actionButtons" class="hidden btn-row" style="margin-bottom:14px">
         <button class="btn small btn-blue" id="btnViewLeads">View Generated Leads</button>
         <button class="btn small btn-blue" id="btnViewOrders">View Orders Placed</button>
         <button class="btn small btn-blue hidden" id="btnViewQualified">View Qualified Leads</button>
         <button class="btn small btn-teal hidden" id="btnPlaceOrder">Place Order</button>
       </div>
-
-      <!-- Customer Code Input -->
       <div class="form-group">
         <label>Customer Code *</label>
-        <div class="field-inline">
-          <input type="text" id="customerCode" placeholder="Enter customer code">
-          <button class="btn small" id="btnLoad">Load</button>
-        </div>
+        <div class="field-inline"><input type="text" id="customerCode" placeholder="Enter customer code"><button class="btn small" id="btnLoad">Load</button></div>
         <div class="meta">Enter code and click Load to fetch data.</div>
       </div>
-
-      <!-- Customer Details -->
       <div id="detailsSection" class="hidden">
         <div class="section-title">Customer Details</div>
-        <div style="overflow-x:auto">
-          <table class="details-table" id="detailsTable"></table>
-        </div>
+        <div style="overflow-x:auto"><table class="details-table" id="detailsTable"></table></div>
       </div>
-
-      <!-- Leads List -->
       <div id="leadsSection" class="hidden">
         <div class="section-title" id="leadsTitle">Leads</div>
-        <div class="table-wrap">
-          <table class="leads-table" id="leadsTable"></table>
-        </div>
+        <div class="table-wrap"><table class="leads-table" id="leadsTable"></table></div>
         <button class="btn small btn-gray" id="btnCloseLeads" style="margin-top:12px">Close List</button>
       </div>
-
-      <!-- Orders Section -->
       <div id="ordersSection" class="hidden">
         <div class="section-title">Place Order</div>
-        <div class="form-group">
-          <label>Customer Code *</label>
-          <div class="field-inline">
-            <input type="text" id="orderCustomerCode" placeholder="Enter customer code">
-            <button class="btn small" id="btnCheckStatus">Check Status</button>
-          </div>
-        </div>
+        <div class="form-group"><label>Customer Code *</label><div class="field-inline"><input type="text" id="orderCustomerCode" placeholder="Enter customer code"><button class="btn small" id="btnCheckStatus">Check Status</button></div></div>
         <div id="orderStatus" class="order-status hidden"></div>
-        <div class="form-group">
-          <label>Order Number *</label>
-          <select id="orderNumber" disabled>
-            <option value="">-- Check status first --</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Quantity (Kgs) *</label>
-          <input type="number" id="orderQuantity" placeholder="Enter quantity" min="0" step="0.01">
-        </div>
-        <div class="btn-row">
-          <button class="btn small btn-teal" id="btnSubmitOrder">Submit Order</button>
-          <button class="btn small btn-gray" id="btnCloseOrders">Close</button>
-        </div>
+        <div class="form-group"><label>Order Number *</label><select id="orderNumber" disabled><option value="">-- Check status first --</option></select></div>
+        <div class="form-group"><label>Quantity (Kgs) *</label><input type="number" id="orderQuantity" placeholder="Enter quantity" min="0" step="0.01"></div>
+        <div class="btn-row"><button class="btn small btn-teal" id="btnSubmitOrder">Submit Order</button><button class="btn small btn-gray" id="btnCloseOrders">Close</button></div>
       </div>
-
-      <!-- Qualification -->
       <div class="section-title">Qualification</div>
-      <div class="form-group">
-        <label>Qualification Status *</label>
-        <select id="qualification" disabled>
-          <option value="">-- Select Status --</option>
-          <option value="YES">YES</option>
-          <option value="NO">NO</option>
-          <option value="Volume Too Small">Volume Too Small</option>
-          <option value="Bad Previous History">Bad Previous History</option>
-          <option value="Other">Other</option>
-        </select>
-      </div>
-      <div id="qualificationOtherBox" class="form-group hidden">
-        <label>Specify Other Qualification Reason *</label>
-        <input type="text" id="qualificationOther" placeholder="Enter reason" maxlength="200">
-        <div class="meta">Describe the qualification reason (max 200 characters)</div>
-      </div>
-      <div id="approvalButtons" class="btn-row hidden" style="margin-bottom:14px">
-        <button class="btn small btn-green" id="btnApprove">Approve</button>
-        <button class="btn small btn-red" id="btnDecline">Decline</button>
-      </div>
-
-      <!-- Presentation -->
+      <div class="form-group"><label>Qualification Status *</label><select id="qualification" disabled><option value="">-- Select Status --</option><option value="YES">YES</option><option value="NO">NO</option><option value="Volume Too Small">Volume Too Small</option><option value="Bad Previous History">Bad Previous History</option><option value="Other">Other</option></select></div>
+      <div id="qualificationOtherBox" class="form-group hidden"><label>Specify Other Qualification Reason *</label><input type="text" id="qualificationOther" placeholder="Enter reason" maxlength="200"><div class="meta">Describe the qualification reason (max 200 characters)</div></div>
+      <div id="approvalButtons" class="btn-row hidden" style="margin-bottom:14px"><button class="btn small btn-green" id="btnApprove">Approve</button><button class="btn small btn-red" id="btnDecline">Decline</button></div>
       <div class="section-title">Presentation</div>
-      <div class="form-group">
-        <label>Presentation Status *</label>
-        <select id="presentation" disabled>
-          <option value="">-- Select Status --</option>
-          <option value="YES">YES</option>
-          <option value="Refused to Trade">Refused to Trade</option>
-          <option value="Refuse to Provide KYC">Refuse to Provide KYC</option>
-          <option value="Other">Other</option>
-        </select>
-      </div>
-      <div id="presentationOtherBox" class="form-group hidden">
-        <label>Specify Other Presentation Reason *</label>
-        <input type="text" id="presentationOther" placeholder="Enter reason" maxlength="200">
-        <div class="meta">Describe the presentation reason (max 200 characters)</div>
-      </div>
-
-      <!-- KYC Onboarding -->
+      <div class="form-group"><label>Presentation Status *</label><select id="presentation" disabled><option value="">-- Select Status --</option><option value="YES">YES</option><option value="Refused to Trade">Refused to Trade</option><option value="Refuse to Provide KYC">Refuse to Provide KYC</option><option value="Other">Other</option></select></div>
+      <div id="presentationOtherBox" class="form-group hidden"><label>Specify Other Presentation Reason *</label><input type="text" id="presentationOther" placeholder="Enter reason" maxlength="200"><div class="meta">Describe the presentation reason (max 200 characters)</div></div>
       <div class="section-title">KYC Onboarding</div>
-      <div class="form-group">
-        <label>KYC Onboarding Status *</label>
-        <select id="kycOnboarding" disabled>
-          <option value="">-- Select Status --</option>
-          <option value="YES">YES</option>
-          <option value="NO">NO</option>
-          <option value="Pending">Pending</option>
-        </select>
-        <div class="meta">Lead must be KYC Onboarded before placing order.</div>
-      </div>
-
-      <!-- Sales Rep Email (Supervisor) -->
-      <div id="assignSalesRep" class="form-group hidden">
-        <label>Assign Sales Rep Email</label>
-        <input type="email" id="assignEmail" placeholder="salesrep@example.com">
-        <div class="meta">Optional: assign a sales rep to this lead.</div>
-      </div>
-
+      <div class="form-group"><label>KYC Onboarding Status *</label><select id="kycOnboarding" disabled><option value="">-- Select Status --</option><option value="YES">YES</option><option value="NO">NO</option><option value="Pending">Pending</option></select><div class="meta">Lead must be KYC Onboarded before placing order.</div></div>
+      <div id="assignSalesRep" class="form-group hidden"><label>Assign Sales Rep Email</label><input type="email" id="assignEmail" placeholder="salesrep@example.com"><div class="meta">Optional: assign a sales rep to this lead.</div></div>
       <button class="btn" id="btnSubmit">Submit</button>
       <div class="loading" id="loading">Processing...</div>
       <div id="message"></div>
     </div>
   </div>
-
-  <!-- Password Modal -->
-  <div id="passwordModal" class="hidden">
-    <div class="modal-overlay">
-      <div class="modal">
-        <h3>Supervisor Password</h3>
-        <input type="password" id="supervisorPassword" placeholder="Enter password" style="width:100%;padding:10px;border:1px solid #e1e8ed;border-radius:6px">
-        <div id="passwordHint" class="hint"></div>
-        <div class="modal-actions">
-          <button class="btn small btn-gray" id="btnCancelPassword">Cancel</button>
-          <button class="btn small" id="btnConfirmPassword">Submit</button>
-        </div>
-      </div>
-    </div>
-  </div>
+  <div id="passwordModal" class="hidden"><div class="modal-overlay"><div class="modal"><h3>Supervisor Password</h3><input type="password" id="supervisorPassword" placeholder="Enter password" style="width:100%;padding:10px;border:1px solid #e1e8ed;border-radius:6px"><div id="passwordHint" class="hint"></div><div class="modal-actions"><button class="btn small btn-gray" id="btnCancelPassword">Cancel</button><button class="btn small" id="btnConfirmPassword">Submit</button></div></div></div></div>
 
   <script>
-    // ========== CONFIG ==========
     const API_URL = 'https://script.google.com/macros/s/AKfycbwMY1AnBlsXSYXEj0eCVjR8i5hNvF6c5nSf11plZfZznc19RmOQIeNUZX0rsvHHhn2uvA/exec';
-    
-    // ========== STATE ==========
-    let currentLead = null;
-    let isSupervisorAuth = false;
-    let supervisorPw = '';
-    let currentOrderStatus = null;
-    let salesRepName = '';
-    let isSalesRepLoggedIn = false;
-    let dashboardData = null;
+    let currentLead=null,isSupervisorAuth=false,supervisorPw='',currentOrderStatus=null,salesRepName='',isSalesRepLoggedIn=false,dashboardData=null,currentRepData=null;
+    const $=id=>document.getElementById(id);
+    const roleSelect=$('roleSelect'),salesRepAuth=$('salesRepAuth'),salesRepEmail=$('salesRepEmail'),salesRepPassword=$('salesRepPassword'),btnSalesRepLogin=$('btnSalesRepLogin'),salesRepLoginMsg=$('salesRepLoginMsg'),loginBadge=$('loginBadge'),loginBadgeText=$('loginBadgeText'),actionButtons=$('actionButtons'),btnViewLeads=$('btnViewLeads'),btnViewOrders=$('btnViewOrders'),btnViewQualified=$('btnViewQualified'),btnPlaceOrder=$('btnPlaceOrder'),customerCode=$('customerCode'),btnLoad=$('btnLoad'),detailsSection=$('detailsSection'),detailsTable=$('detailsTable'),leadsSection=$('leadsSection'),leadsTitle=$('leadsTitle'),leadsTable=$('leadsTable'),btnCloseLeads=$('btnCloseLeads'),ordersSection=$('ordersSection'),orderCustomerCode=$('orderCustomerCode'),btnCheckStatus=$('btnCheckStatus'),orderStatus=$('orderStatus'),orderNumber=$('orderNumber'),orderQuantity=$('orderQuantity'),btnSubmitOrder=$('btnSubmitOrder'),btnCloseOrders=$('btnCloseOrders'),qualification=$('qualification'),approvalButtons=$('approvalButtons'),btnApprove=$('btnApprove'),btnDecline=$('btnDecline'),presentation=$('presentation'),presentationOtherBox=$('presentationOtherBox'),presentationOther=$('presentationOther'),kycOnboarding=$('kycOnboarding'),qualificationOtherBox=$('qualificationOtherBox'),qualificationOther=$('qualificationOther'),assignSalesRep=$('assignSalesRep'),assignEmail=$('assignEmail'),btnSubmit=$('btnSubmit'),loading=$('loading'),message=$('message'),passwordModal=$('passwordModal'),supervisorPassword=$('supervisorPassword'),passwordHint=$('passwordHint'),btnCancelPassword=$('btnCancelPassword'),btnConfirmPassword=$('btnConfirmPassword');
+    const supervisorDashboard=$('supervisorDashboard'),metricTotalLeads=$('metricTotalLeads'),metricQualifiedLeads=$('metricQualifiedLeads'),metricQualificationRate=$('metricQualificationRate'),metricApprovedLeads=$('metricApprovedLeads'),metricConvertedLeads=$('metricConvertedLeads'),metricConversionRate=$('metricConversionRate'),btnRefreshDashboard=$('btnRefreshDashboard'),btnViewApprovedLeads=$('btnViewApprovedLeads');
+    // Sales Rep Details elements
+    const salesRepDetailsSection=$('salesRepDetailsSection'),salesRepSelect=$('salesRepSelect'),repDetailsCard=$('repDetailsCard'),repName=$('repName'),repEmail=$('repEmail'),repTotalLeads=$('repTotalLeads'),repConvertedCount=$('repConvertedCount'),btnRepAllLeads=$('btnRepAllLeads'),btnRepConvertedLeads=$('btnRepConvertedLeads'),repLeadsTableSection=$('repLeadsTableSection'),repLeadsTitle=$('repLeadsTitle'),repLeadsTable=$('repLeadsTable'),btnCloseRepLeads=$('btnCloseRepLeads');
 
-    // ========== ELEMENTS ==========
-    const $ = id => document.getElementById(id);
-    const roleSelect = $('roleSelect');
-    const salesRepAuth = $('salesRepAuth');
-    const salesRepEmail = $('salesRepEmail');
-    const salesRepPassword = $('salesRepPassword');
-    const btnSalesRepLogin = $('btnSalesRepLogin');
-    const salesRepLoginMsg = $('salesRepLoginMsg');
-    const loginBadge = $('loginBadge');
-    const loginBadgeText = $('loginBadgeText');
-    const actionButtons = $('actionButtons');
-    const btnViewLeads = $('btnViewLeads');
-    const btnViewOrders = $('btnViewOrders');
-    const btnViewQualified = $('btnViewQualified');
-    const btnPlaceOrder = $('btnPlaceOrder');
-    const customerCode = $('customerCode');
-    const btnLoad = $('btnLoad');
-    const detailsSection = $('detailsSection');
-    const detailsTable = $('detailsTable');
-    const leadsSection = $('leadsSection');
-    const leadsTitle = $('leadsTitle');
-    const leadsTable = $('leadsTable');
-    const btnCloseLeads = $('btnCloseLeads');
-    const ordersSection = $('ordersSection');
-    const orderCustomerCode = $('orderCustomerCode');
-    const btnCheckStatus = $('btnCheckStatus');
-    const orderStatus = $('orderStatus');
-    const orderNumber = $('orderNumber');
-    const orderQuantity = $('orderQuantity');
-    const btnSubmitOrder = $('btnSubmitOrder');
-    const btnCloseOrders = $('btnCloseOrders');
-    const qualification = $('qualification');
-    const approvalButtons = $('approvalButtons');
-    const btnApprove = $('btnApprove');
-    const btnDecline = $('btnDecline');
-    const presentation = $('presentation');
-    const presentationOtherBox = $('presentationOtherBox');
-    const presentationOther = $('presentationOther');
-    const kycOnboarding = $('kycOnboarding');
-    const qualificationOtherBox = $('qualificationOtherBox');
-    const qualificationOther = $('qualificationOther');
-    const assignSalesRep = $('assignSalesRep');
-    const assignEmail = $('assignEmail');
-    const btnSubmit = $('btnSubmit');
-    const loading = $('loading');
-    const message = $('message');
-    const passwordModal = $('passwordModal');
-    const supervisorPassword = $('supervisorPassword');
-    const passwordHint = $('passwordHint');
-    const btnCancelPassword = $('btnCancelPassword');
-    const btnConfirmPassword = $('btnConfirmPassword');
-    
-    // Dashboard elements
-    const supervisorDashboard = $('supervisorDashboard');
-    const metricTotalLeads = $('metricTotalLeads');
-    const metricQualifiedLeads = $('metricQualifiedLeads');
-    const metricQualificationRate = $('metricQualificationRate');
-    const metricApprovedLeads = $('metricApprovedLeads');
-    const metricConvertedLeads = $('metricConvertedLeads');
-    const metricConversionRate = $('metricConversionRate');
-    const btnRefreshDashboard = $('btnRefreshDashboard');
-    const btnViewApprovedLeads = $('btnViewApprovedLeads');
+    async function api(action,data={}){loading.classList.add('show');try{const res=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action,...data})});return await res.json();}catch(e){return{success:false,message:'Network error: '+e.message};}finally{loading.classList.remove('show');}}
+    function showMsg(text,type='info'){message.className='message '+type;message.textContent=text;message.style.display='block';setTimeout(()=>message.style.display='none',5000);}
 
-    // ========== API CALL ==========
-    async function api(action, data = {}) {
-      loading.classList.add('show');
-      try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify({ action, ...data })
-        });
-        return await res.json();
-      } catch (e) {
-        return { success: false, message: 'Network error: ' + e.message };
-      } finally {
-        loading.classList.remove('show');
-      }
-    }
+    // Dashboard
+    async function loadDashboard(){if(!isSupervisorAuth||!supervisorPw)return;const res=await api('getSupervisorDashboard',{password:supervisorPw});if(res.success){dashboardData=res.data;metricTotalLeads.textContent=res.data.totalLeads;metricQualifiedLeads.textContent=res.data.qualifiedLeads;metricQualificationRate.textContent=res.data.qualificationRate+'%';metricApprovedLeads.textContent=res.data.approvedLeadsCount;metricConvertedLeads.textContent=res.data.convertedLeads;metricConversionRate.textContent=res.data.conversionRate+'%';supervisorDashboard.classList.remove('hidden');}else{showMsg('Failed to load dashboard: '+res.message,'error');}}
+    btnRefreshDashboard.addEventListener('click',()=>{loadDashboard();showMsg('Dashboard refreshed','success');});
+    btnViewApprovedLeads.addEventListener('click',()=>{if(!dashboardData||!dashboardData.approvedLeads){showMsg('No dashboard data. Click Refresh first.','error');return;}if(dashboardData.approvedLeads.length===0){showMsg('No approved leads found','info');return;}renderLeadsTable(dashboardData.approvedLeads,'Approved Leads ('+dashboardData.approvedLeadsCount+')');});
 
-    // ========== MESSAGE ==========
-    function showMsg(text, type = 'info') {
-      message.className = 'message ' + type;
-      message.textContent = text;
-      message.style.display = 'block';
-      setTimeout(() => message.style.display = 'none', 5000);
-    }
+    // Sales Rep Details
+    salesRepSelect.addEventListener('change',async()=>{const email=salesRepSelect.value;if(!email){repDetailsCard.classList.add('hidden');repLeadsTableSection.classList.add('hidden');currentRepData=null;return;}const res=await api('getSalesRepDetails',{salesRepEmail:email,password:supervisorPw});if(res.success){currentRepData=res.data;repName.textContent=res.data.name;repEmail.textContent=res.data.email;repTotalLeads.textContent=res.data.totalLeads;repConvertedCount.textContent=res.data.convertedCount;repDetailsCard.classList.remove('hidden');repLeadsTableSection.classList.add('hidden');}else{showMsg(res.message,'error');repDetailsCard.classList.add('hidden');}});
+    btnRepAllLeads.addEventListener('click',()=>{if(!currentRepData||!currentRepData.generatedLeads)return;if(currentRepData.generatedLeads.length===0){showMsg('No leads found for this rep','info');return;}repLeadsTitle.textContent='All Generated Leads ('+currentRepData.totalLeads+')';const headers=['Code','Store Name','Area','Region','Contact','Mobile','Qualification','Approval','Presentation','KYC'];repLeadsTable.innerHTML='<thead><tr>'+headers.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>'+currentRepData.generatedLeads.map(l=>'<tr><td>'+l.customerCode+'</td><td>'+l.storeName+'</td><td>'+l.area+'</td><td>'+l.region+'</td><td>'+l.contactPerson+'</td><td>'+l.mobileNumber+'</td><td>'+l.qualification+'</td><td>'+l.approval+'</td><td>'+l.presentation+'</td><td>'+l.kycOnboarding+'</td></tr>').join('')+'</tbody>';repLeadsTableSection.classList.remove('hidden');});
+    btnRepConvertedLeads.addEventListener('click',()=>{if(!currentRepData||!currentRepData.convertedLeads)return;if(currentRepData.convertedLeads.length===0){showMsg('No converted leads for this rep','info');return;}repLeadsTitle.textContent='Converted Leads ('+currentRepData.convertedCount+')';const headers=['Code','Store Name','Area','Order 1 (Kgs)','Order 2 (Kgs)','Order 3 (Kgs)','Total (Kgs)','Milestone'];repLeadsTable.innerHTML='<thead><tr>'+headers.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>'+currentRepData.convertedLeads.map(l=>{let badgeClass='milestone-1';if(l.completedOrders===3)badgeClass='milestone-3';else if(l.completedOrders===2)badgeClass='milestone-2';return '<tr><td>'+l.customerCode+'</td><td>'+l.storeName+'</td><td>'+l.area+'</td><td>'+(l.order1Qty>0?l.order1Qty.toFixed(2):'-')+'</td><td>'+(l.order2Qty>0?l.order2Qty.toFixed(2):'-')+'</td><td>'+(l.order3Qty>0?l.order3Qty.toFixed(2):'-')+'</td><td>'+l.totalQty.toFixed(2)+'</td><td><span class="milestone-badge '+badgeClass+'">'+l.milestone+'</span></td></tr>';}).join('')+'</tbody>';repLeadsTableSection.classList.remove('hidden');});
+    btnCloseRepLeads.addEventListener('click',()=>repLeadsTableSection.classList.add('hidden'));
 
-    // ========== LOAD DASHBOARD ==========
-    async function loadDashboard() {
-      if (!isSupervisorAuth || !supervisorPw) return;
-      
-      const res = await api('getSupervisorDashboard', { password: supervisorPw });
-      
-      if (res.success) {
-        dashboardData = res.data;
-        metricTotalLeads.textContent = res.data.totalLeads;
-        metricQualifiedLeads.textContent = res.data.qualifiedLeads;
-        metricQualificationRate.textContent = res.data.qualificationRate + '%';
-        metricApprovedLeads.textContent = res.data.approvedLeadsCount;
-        metricConvertedLeads.textContent = res.data.convertedLeads;
-        metricConversionRate.textContent = res.data.conversionRate + '%';
-        supervisorDashboard.classList.remove('hidden');
-      } else {
-        showMsg('Failed to load dashboard: ' + res.message, 'error');
-      }
-    }
+    // UI Update
+    function updateUI(){const role=roleSelect.value;if(role==='Supervisor'&&isSupervisorAuth){supervisorDashboard.classList.remove('hidden');salesRepDetailsSection.classList.remove('hidden');}else{supervisorDashboard.classList.add('hidden');salesRepDetailsSection.classList.add('hidden');}if(role==='SalesRep')salesRepAuth.classList.remove('hidden');else salesRepAuth.classList.add('hidden');if(role==='SalesRep'&&isSalesRepLoggedIn)actionButtons.classList.remove('hidden');else if(role==='Supervisor')actionButtons.classList.remove('hidden');else actionButtons.classList.add('hidden');btnViewLeads.classList.toggle('hidden',role!=='Supervisor');btnViewOrders.classList.toggle('hidden',role!=='Supervisor');btnViewQualified.classList.toggle('hidden',role!=='SalesRep');btnPlaceOrder.classList.toggle('hidden',role!=='SalesRep');approvalButtons.classList.toggle('hidden',role!=='Supervisor'||!isSupervisorAuth);assignSalesRep.classList.toggle('hidden',role!=='Supervisor'||!isSupervisorAuth);qualification.disabled=role!=='Supervisor'||!isSupervisorAuth;presentation.disabled=role!=='SalesRep'||!currentLead||currentLead.approval!=='Approved'||!isSalesRepLoggedIn;kycOnboarding.disabled=role!=='SalesRep'||!currentLead||currentLead.approval!=='Approved'||!isSalesRepLoggedIn;if(role==='SalesRep'){customerCode.disabled=!isSalesRepLoggedIn;btnLoad.disabled=!isSalesRepLoggedIn;}else{customerCode.disabled=false;btnLoad.disabled=false;}qualificationOtherBox.classList.toggle('hidden',qualification.value!=='Other');presentationOtherBox.classList.toggle('hidden',presentation.value!=='Other');if(role==='Supervisor'&&!isSupervisorAuth)showPasswordModal();}
+    function showPasswordModal(){passwordModal.classList.remove('hidden');supervisorPassword.value='';passwordHint.style.display='none';supervisorPassword.focus();}
+    function hidePasswordModal(){passwordModal.classList.add('hidden');}
 
-    // ========== DASHBOARD BUTTON HANDLERS ==========
-    btnRefreshDashboard.addEventListener('click', () => {
-      loadDashboard();
-      showMsg('Dashboard refreshed', 'success');
-    });
-
-    btnViewApprovedLeads.addEventListener('click', () => {
-      if (!dashboardData || !dashboardData.approvedLeads) {
-        showMsg('No dashboard data. Click Refresh first.', 'error');
-        return;
-      }
-      
-      if (dashboardData.approvedLeads.length === 0) {
-        showMsg('No approved leads found', 'info');
-        return;
-      }
-      
-      renderLeadsTable(dashboardData.approvedLeads, 'Approved Leads (' + dashboardData.approvedLeadsCount + ')');
-    });
-
-    // ========== UI UPDATE ==========
-    function updateUI() {
-      const role = roleSelect.value;
-      
-      if (role === 'Supervisor' && isSupervisorAuth) {
-        supervisorDashboard.classList.remove('hidden');
-      } else {
-        supervisorDashboard.classList.add('hidden');
-      }
-      
-      if (role === 'SalesRep') {
-        salesRepAuth.classList.remove('hidden');
-      } else {
-        salesRepAuth.classList.add('hidden');
-      }
-      
-      if (role === 'SalesRep' && isSalesRepLoggedIn) {
-        actionButtons.classList.remove('hidden');
-      } else if (role === 'Supervisor') {
-        actionButtons.classList.remove('hidden');
-      } else {
-        actionButtons.classList.add('hidden');
-      }
-      
-      btnViewLeads.classList.toggle('hidden', role !== 'Supervisor');
-      btnViewOrders.classList.toggle('hidden', role !== 'Supervisor');
-      btnViewQualified.classList.toggle('hidden', role !== 'SalesRep');
-      btnPlaceOrder.classList.toggle('hidden', role !== 'SalesRep');
-      approvalButtons.classList.toggle('hidden', role !== 'Supervisor' || !isSupervisorAuth);
-      assignSalesRep.classList.toggle('hidden', role !== 'Supervisor' || !isSupervisorAuth);
-      qualification.disabled = role !== 'Supervisor' || !isSupervisorAuth;
-      presentation.disabled = role !== 'SalesRep' || !currentLead || currentLead.approval !== 'Approved' || !isSalesRepLoggedIn;
-      kycOnboarding.disabled = role !== 'SalesRep' || !currentLead || currentLead.approval !== 'Approved' || !isSalesRepLoggedIn;
-      
-      if (role === 'SalesRep') {
-        customerCode.disabled = !isSalesRepLoggedIn;
-        btnLoad.disabled = !isSalesRepLoggedIn;
-      } else {
-        customerCode.disabled = false;
-        btnLoad.disabled = false;
-      }
-      
-      qualificationOtherBox.classList.toggle('hidden', qualification.value !== 'Other');
-      presentationOtherBox.classList.toggle('hidden', presentation.value !== 'Other');
-      
-      if (role === 'Supervisor' && !isSupervisorAuth) showPasswordModal();
-    }
-
-    function showPasswordModal() {
-      passwordModal.classList.remove('hidden');
-      supervisorPassword.value = '';
-      passwordHint.style.display = 'none';
-      supervisorPassword.focus();
-    }
-
-    function hidePasswordModal() {
-      passwordModal.classList.add('hidden');
-    }
-
-    // ========== ROLE CHANGE ==========
-    roleSelect.addEventListener('change', () => {
-      currentLead = null;
-      detailsSection.classList.add('hidden');
-      leadsSection.classList.add('hidden');
-      ordersSection.classList.add('hidden');
-      supervisorDashboard.classList.add('hidden');
-      qualification.value = '';
-      presentation.value = '';
-      kycOnboarding.value = '';
-      qualificationOther.value = '';
-      presentationOther.value = '';
-      qualificationOtherBox.classList.add('hidden');
-      presentationOtherBox.classList.add('hidden');
-      salesRepLoginMsg.style.display = 'none';
-      
-      if (roleSelect.value === 'SalesRep') {
-        isSalesRepLoggedIn = false;
-        salesRepName = '';
-        salesRepEmail.value = '';
-        salesRepPassword.value = '';
-        if (loginBadge) {
-          loginBadge.classList.remove('show');
-          loginBadgeText.textContent = '';
-        }
-      }
-      
-      if (roleSelect.value !== 'Supervisor') {
-        isSupervisorAuth = false;
-        supervisorPw = '';
-      }
-      updateUI();
-    });
-
-    // ========== PASSWORD MODAL ==========
-    btnCancelPassword.addEventListener('click', () => {
-      hidePasswordModal();
-      roleSelect.value = '';
-      updateUI();
-    });
-
-    btnConfirmPassword.addEventListener('click', async () => {
-      const pw = supervisorPassword.value.trim();
-      if (!pw) { passwordHint.textContent = 'Enter password'; passwordHint.style.display = 'block'; return; }
-      const res = await api('validateSupervisorPassword', { password: pw });
-      if (res.success) {
-        isSupervisorAuth = true;
-        supervisorPw = pw;
-        hidePasswordModal();
-        if (loginBadge) {
-          loginBadge.classList.add('show');
-          loginBadgeText.textContent = 'Logged in as: Supervisor';
-        }
-        updateUI();
-        loadDashboard();
-        showMsg('Supervisor authenticated', 'success');
-      } else {
-        passwordHint.textContent = res.message || 'Invalid password';
-        passwordHint.style.display = 'block';
-      }
-    });
-
-    // ========== SALES REP LOGIN ==========
-    btnSalesRepLogin.addEventListener('click', async () => {
-      const email = salesRepEmail.value.trim();
-      const password = salesRepPassword.value.trim();
-      
-      if (!email || !password) {
-        salesRepLoginMsg.textContent = 'Please enter email and password';
-        salesRepLoginMsg.style.display = 'block';
-        return;
-      }
-      
-      const res = await api('validateSalesRepLogin', { 
-        salesRepEmail: email, 
-        salesRepPassword: password 
-      });
-      
-      if (res.success) {
-        isSalesRepLoggedIn = true;
-        salesRepName = res.name;
-        salesRepLoginMsg.style.display = 'none';
-        if (loginBadge) {
-          loginBadge.classList.add('show');
-          loginBadgeText.textContent = `Logged in as: ${res.name}`;
-        }
-        btnSalesRepLogin.textContent = 'Logged In ✓';
-        btnSalesRepLogin.disabled = true;
-        btnSalesRepLogin.style.background = '#22c55e';
-        salesRepEmail.disabled = true;
-        salesRepPassword.disabled = true;
-        updateUI();
-        showMsg(`Welcome, ${res.name}!`, 'success');
-      } else {
-        salesRepLoginMsg.textContent = res.message;
-        salesRepLoginMsg.style.display = 'block';
-        salesRepLoginMsg.style.color = '#dc2626';
-      }
-    });
-
-    // ========== LOAD LEAD ==========
-    btnLoad.addEventListener('click', async () => {
-      const code = customerCode.value.trim();
-      const role = roleSelect.value;
-      if (!role) { showMsg('Select a role first', 'error'); return; }
-      if (!code) { showMsg('Enter customer code', 'error'); return; }
-      if (role === 'SalesRep' && !isSalesRepLoggedIn) {
-        showMsg('Please login first', 'error'); return;
-      }
-      const res = await api('getLeadStatus', {
-        customerCode: code,
-        role,
-        salesRepEmail: salesRepEmail.value.trim(),
-        salesRepPassword: salesRepPassword.value.trim()
-      });
-      if (!res.success) { showMsg(res.message, 'error'); return; }
-      currentLead = res.data;
-      qualification.value = currentLead.qualification || '';
-      presentation.value = currentLead.presentation || '';
-      kycOnboarding.value = currentLead.kycOnboarding || '';
-      assignEmail.value = currentLead.salesRepEmail || '';
-      
-      if (currentLead.qualification && currentLead.qualification.startsWith('Other: ')) {
-        qualification.value = 'Other';
-        qualificationOther.value = currentLead.qualification.substring(7);
-      } else {
-        qualificationOther.value = '';
-      }
-      
-      if (currentLead.presentation && currentLead.presentation.startsWith('Other: ')) {
-        presentation.value = 'Other';
-        presentationOther.value = currentLead.presentation.substring(7);
-      } else {
-        presentationOther.value = '';
-      }
-      
-      renderDetails(currentLead);
-      detailsSection.classList.remove('hidden');
-      leadsSection.classList.add('hidden');
-      ordersSection.classList.add('hidden');
-      updateUI();
-      showMsg('Lead loaded (row ' + currentLead.row + ')', 'success');
-    });
-
-    function renderDetails(d) {
-      const fields = [
-        ['Region', d.region], ['Area', d.area], ['Location', d.location],
-        ['Store Name', d.storeName], ['Contact Person', d.contactPerson], ['Mobile', d.mobileNumber],
-        ['Outlet Category', d.outletCategory], ['Brands Stocked', d.brandsStocked],
-        ['Purchase Freq', d.purchaseFrequency], ['Main Supplier', d.mainSupplier],
-        ['Distributor Type', d.distributorType], ['Weldplus Aware', d.weldplusAwareness],
-        ['Feedback', d.additionalFeedback], ['Customer Code', d.customerCode]
-      ];
-      detailsTable.innerHTML = '<tr>' + fields.map(f => `<th>${f[0]}</th>`).join('') + '</tr>' +
-        '<tr>' + fields.map(f => `<td>${f[1] || ''}</td>`).join('') + '</tr>';
-    }
-
-    // ========== VIEW LEADS ==========
-    btnViewLeads.addEventListener('click', async () => {
-      const res = await api('getAllGeneratedLeads');
-      if (!res.success) { showMsg(res.message, 'error'); return; }
-      renderLeadsTable(res.data, 'Generated Leads');
-    });
-
-    btnViewQualified.addEventListener('click', async () => {
-      if (!isSalesRepLoggedIn) {
-        showMsg('Please login first', 'error'); return;
-      }
-      const res = await api('getQualifiedLeadsBySalesRep', {
-        salesRepEmail: salesRepEmail.value.trim(),
-        salesRepPassword: salesRepPassword.value.trim()
-      });
-      if (!res.success) { showMsg(res.message, 'error'); return; }
-      if (res.data.length === 0) { showMsg('No qualified leads found', 'info'); return; }
-      renderLeadsTable(res.data, 'Qualified Leads');
-    });
-
-    btnViewOrders.addEventListener('click', async () => {
-      const res = await api('getOrdersSummary');
-      if (!res.success) { showMsg(res.message, 'error'); return; }
-      if (res.data.length === 0) { showMsg('No orders yet', 'info'); return; }
-      renderOrdersTable(res.data);
-    });
-
-    function renderLeadsTable(leads, title) {
-      leadsTitle.textContent = title;
-      const headers = ['Region','Area','Location','Store Name','Contact','Mobile','Category','Brands','Freq','Supplier','Dist Type','Weldplus','Feedback','Code'];
-      leadsTable.innerHTML = '<thead><tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr></thead><tbody>' +
-        leads.map(l => `<tr><td>${l.region}</td><td>${l.area}</td><td>${l.location}</td><td>${l.storeName}</td><td>${l.contactPerson}</td><td>${l.mobileNumber}</td><td>${l.outletCategory}</td><td>${l.brandsStocked}</td><td>${l.purchaseFrequency}</td><td>${l.mainSupplier}</td><td>${l.distributorType}</td><td>${l.weldplusAwareness}</td><td>${l.additionalFeedback}</td><td>${l.customerCode}</td></tr>`).join('') +
-        '</tbody>';
-      leadsSection.classList.remove('hidden');
-      detailsSection.classList.add('hidden');
-      ordersSection.classList.add('hidden');
-    }
-
-    function renderOrdersTable(orders) {
-      leadsTitle.textContent = 'Orders Summary';
-      leadsTable.innerHTML = '<thead><tr><th>Customer Code</th><th>Orders</th><th>Total Kgs</th><th>Avg Kgs</th></tr></thead><tbody>' +
-        orders.map(o => `<tr><td>${o.customerCode}</td><td>${o.numberOfOrders}</td><td>${o.totalQuantity.toFixed(2)}</td><td>${o.averageQuantity.toFixed(2)}</td></tr>`).join('') +
-        '</tbody>';
-      leadsSection.classList.remove('hidden');
-      detailsSection.classList.add('hidden');
-      ordersSection.classList.add('hidden');
-    }
-
-    btnCloseLeads.addEventListener('click', () => leadsSection.classList.add('hidden'));
-
-    // ========== QUALIFICATION/PRESENTATION CHANGE HANDLERS ==========
-    qualification.addEventListener('change', () => {
-      qualificationOtherBox.classList.toggle('hidden', qualification.value !== 'Other');
-      if (qualification.value !== 'Other') qualificationOther.value = '';
-    });
-
-    presentation.addEventListener('change', () => {
-      presentationOtherBox.classList.toggle('hidden', presentation.value !== 'Other');
-      if (presentation.value !== 'Other') presentationOther.value = '';
-    });
-
-    // ========== ORDERS ==========
-    btnPlaceOrder.addEventListener('click', () => {
-      ordersSection.classList.remove('hidden');
-      leadsSection.classList.add('hidden');
-      detailsSection.classList.add('hidden');
-      orderCustomerCode.value = '';
-      orderNumber.innerHTML = '<option value="">-- Check status first --</option>';
-      orderNumber.disabled = true;
-      orderQuantity.value = '';
-      orderStatus.classList.add('hidden');
-      currentOrderStatus = null;
-    });
-
-    btnCloseOrders.addEventListener('click', () => ordersSection.classList.add('hidden'));
-
-    btnCheckStatus.addEventListener('click', async () => {
-      const code = orderCustomerCode.value.trim();
-      if (!code) { showMsg('Enter customer code', 'error'); return; }
-      if (!isSalesRepLoggedIn) {
-        showMsg('Please login first', 'error'); return;
-      }
-      const res = await api('getAvailableOrders', {
-        customerCode: code,
-        salesRepEmail: salesRepEmail.value.trim(),
-        salesRepPassword: salesRepPassword.value.trim()
-      });
-      if (!res.success) { showMsg(res.message, 'error'); orderStatus.classList.add('hidden'); return; }
-      currentOrderStatus = res;
-      updateOrderDropdown(res);
-      let html = '';
-      if (res.submittedOrders.length === 0) html = 'No orders yet. You can submit Order 1.';
-      else if (res.nextAvailableOrder === -1) html = 'All 3 orders submitted.';
-      else html = `Submitted: Order ${res.submittedOrders.join(', ')}<br><strong>Next:</strong> Order ${res.nextAvailableOrder}`;
-      orderStatus.innerHTML = html;
-      orderStatus.classList.remove('hidden');
-    });
-
-    function updateOrderDropdown(status) {
-      let opts = '<option value="">-- Select Order --</option>';
-      for (let i = 1; i <= 3; i++) {
-        const submitted = status.submittedOrders.includes(i);
-        const available = i === status.nextAvailableOrder;
-        const disabled = submitted || (!available && status.nextAvailableOrder !== -1);
-        const label = submitted ? `Order ${i} (Done)` : available ? `Order ${i} (Available)` : `Order ${i}`;
-        opts += `<option value="Order ${i}" ${disabled ? 'disabled' : ''}>${label}</option>`;
-      }
-      orderNumber.innerHTML = opts;
-      orderNumber.disabled = status.nextAvailableOrder === -1;
-    }
-
-    btnSubmitOrder.addEventListener('click', async () => {
-      const code = orderCustomerCode.value.trim();
-      const num = orderNumber.value;
-      const qty = parseFloat(orderQuantity.value);
-      if (!code || !num || !qty || qty <= 0) { showMsg('Fill all fields', 'error'); return; }
-      if (!currentOrderStatus) { showMsg('Check status first', 'error'); return; }
-      if (!isSalesRepLoggedIn) { showMsg('Please login first', 'error'); return; }
-      const res = await api('submitOrder', {
-        customerCode: code,
-        orderNumber: num,
-        quantity: qty,
-        salesRepEmail: salesRepEmail.value.trim(),
-        salesRepPassword: salesRepPassword.value.trim()
-      });
-      if (res.success) {
-        showMsg(res.message, 'success');
-        orderQuantity.value = '';
-        btnCheckStatus.click();
-      } else {
-        showMsg(res.message, 'error');
-      }
-    });
-
-    // ========== APPROVE / DECLINE ==========
-    btnApprove.addEventListener('click', () => updateQualification('Approved'));
-    btnDecline.addEventListener('click', () => updateQualification('Declined'));
-
-    async function updateQualification(action) {
-      if (!currentLead) { showMsg('Load a lead first', 'error'); return; }
-      if (!qualification.value) { showMsg('Select qualification first', 'error'); return; }
-      
-      let qualValue = qualification.value;
-      if (qualValue === 'Other') {
-        const customText = qualificationOther.value.trim();
-        if (!customText) {
-          showMsg('Please specify the qualification reason', 'error');
-          return;
-        }
-        qualValue = 'Other: ' + customText;
-      }
-      
-      const res = await api('updateQualificationBySupervisor', {
-        customerCode: customerCode.value.trim(),
-        qualificationValue: qualValue,
-        approvalAction: action,
-        salesRepEmail: assignEmail.value.trim(),
-        password: supervisorPw
-      });
-      if (res.success) {
-        showMsg(`Lead ${action.toLowerCase()}`, 'success');
-        btnLoad.click();
-        loadDashboard();
-      } else {
-        showMsg(res.message, 'error');
-      }
-    }
-
-    // ========== SUBMIT ==========
-    btnSubmit.addEventListener('click', async () => {
-      const role = roleSelect.value;
-      const code = customerCode.value.trim();
-      if (!currentLead || !code) { showMsg('Load a lead first', 'error'); return; }
-
-      if (role === 'Supervisor') {
-        let qualValue = qualification.value;
-        if (qualValue === 'Other') {
-          const customText = qualificationOther.value.trim();
-          if (!customText) {
-            showMsg('Please specify the qualification reason', 'error');
-            return;
-          }
-          qualValue = 'Other: ' + customText;
-        }
-        
-        const res = await api('updateQualificationBySupervisor', {
-          customerCode: code,
-          qualificationValue: qualValue,
-          approvalAction: '',
-          salesRepEmail: assignEmail.value.trim(),
-          password: supervisorPw
-        });
-        if (res.success) { 
-          showMsg('Qualification updated', 'success'); 
-          btnLoad.click(); 
-          loadDashboard();
-        }
-        else showMsg(res.message, 'error');
-      } else if (role === 'SalesRep') {
-        let updatesMade = [];
-        let errors = [];
-
-        if (presentation.value) {
-          let presValue = presentation.value;
-          
-          if (presValue === 'Other') {
-            const customText = presentationOther.value.trim();
-            if (!customText) {
-              showMsg('Please specify the presentation reason', 'error');
-              return;
-            }
-            presValue = 'Other: ' + customText;
-          }
-          
-          const currentPres = currentLead.presentation || '';
-          if (presValue !== currentPres) {
-            const presRes = await api('updatePresentationBySalesRep', {
-              customerCode: code,
-              presentationValue: presValue,
-              salesRepEmail: salesRepEmail.value.trim(),
-              password: salesRepPassword.value.trim()
-            });
-            if (presRes.success) updatesMade.push('Presentation');
-            else errors.push('Presentation: ' + presRes.message);
-          }
-        }
-
-        if (kycOnboarding.value && kycOnboarding.value !== currentLead.kycOnboarding) {
-          const kycRes = await api('updateKYCOnboardingBySalesRep', {
-            customerCode: code,
-            kycValue: kycOnboarding.value,
-            salesRepEmail: salesRepEmail.value.trim(),
-            password: salesRepPassword.value.trim()
-          });
-          if (kycRes.success) updatesMade.push('KYC Onboarding');
-          else errors.push('KYC: ' + kycRes.message);
-        }
-
-        if (updatesMade.length > 0) {
-          showMsg(updatesMade.join(' and ') + ' updated successfully. You have been logged out.', 'success');
-          
-          setTimeout(() => {
-            logoutSalesRep();
-          }, 2000);
-        } else if (errors.length > 0) {
-          showMsg(errors.join('; '), 'error');
-        } else {
-          showMsg('No changes to save', 'info');
-        }
-      }
-    });
-
-    // ========== LOGOUT FUNCTION ==========
-    function logoutSalesRep() {
-      isSalesRepLoggedIn = false;
-      salesRepName = '';
-      salesRepEmail.value = '';
-      salesRepPassword.value = '';
-      salesRepEmail.disabled = false;
-      salesRepPassword.disabled = false;
-      btnSalesRepLogin.disabled = false;
-      btnSalesRepLogin.textContent = 'Login';
-      btnSalesRepLogin.style.background = '';
-      if (loginBadge) {
-        loginBadge.classList.remove('show');
-        loginBadgeText.textContent = '';
-      }
-      
-      customerCode.value = '';
-      qualification.value = '';
-      presentation.value = '';
-      kycOnboarding.value = '';
-      qualificationOther.value = '';
-      presentationOther.value = '';
-      currentLead = null;
-      
-      detailsSection.classList.add('hidden');
-      leadsSection.classList.add('hidden');
-      ordersSection.classList.add('hidden');
-      qualificationOtherBox.classList.add('hidden');
-      presentationOtherBox.classList.add('hidden');
-      
-      updateUI();
-      showMsg('You have been logged out. Please login again to continue.', 'info');
-    }
-
-    // Init
+    roleSelect.addEventListener('change',()=>{currentLead=null;detailsSection.classList.add('hidden');leadsSection.classList.add('hidden');ordersSection.classList.add('hidden');supervisorDashboard.classList.add('hidden');salesRepDetailsSection.classList.add('hidden');qualification.value='';presentation.value='';kycOnboarding.value='';qualificationOther.value='';presentationOther.value='';qualificationOtherBox.classList.add('hidden');presentationOtherBox.classList.add('hidden');salesRepLoginMsg.style.display='none';if(roleSelect.value==='SalesRep'){isSalesRepLoggedIn=false;salesRepName='';salesRepEmail.value='';salesRepPassword.value='';if(loginBadge){loginBadge.classList.remove('show');loginBadgeText.textContent='';}}if(roleSelect.value!=='Supervisor'){isSupervisorAuth=false;supervisorPw='';}updateUI();});
+    btnCancelPassword.addEventListener('click',()=>{hidePasswordModal();roleSelect.value='';updateUI();});
+    btnConfirmPassword.addEventListener('click',async()=>{const pw=supervisorPassword.value.trim();if(!pw){passwordHint.textContent='Enter password';passwordHint.style.display='block';return;}const res=await api('validateSupervisorPassword',{password:pw});if(res.success){isSupervisorAuth=true;supervisorPw=pw;hidePasswordModal();if(loginBadge){loginBadge.classList.add('show');loginBadgeText.textContent='Logged in as: Supervisor';}updateUI();loadDashboard();showMsg('Supervisor authenticated','success');}else{passwordHint.textContent=res.message||'Invalid password';passwordHint.style.display='block';}});
+    btnSalesRepLogin.addEventListener('click',async()=>{const email=salesRepEmail.value.trim();const password=salesRepPassword.value.trim();if(!email||!password){salesRepLoginMsg.textContent='Please enter email and password';salesRepLoginMsg.style.display='block';return;}const res=await api('validateSalesRepLogin',{salesRepEmail:email,salesRepPassword:password});if(res.success){isSalesRepLoggedIn=true;salesRepName=res.name;salesRepLoginMsg.style.display='none';if(loginBadge){loginBadge.classList.add('show');loginBadgeText.textContent=`Logged in as: ${res.name}`;}btnSalesRepLogin.textContent='Logged In ✓';btnSalesRepLogin.disabled=true;btnSalesRepLogin.style.background='#22c55e';salesRepEmail.disabled=true;salesRepPassword.disabled=true;updateUI();showMsg(`Welcome, ${res.name}!`,'success');}else{salesRepLoginMsg.textContent=res.message;salesRepLoginMsg.style.display='block';salesRepLoginMsg.style.color='#dc2626';}});
+    btnLoad.addEventListener('click',async()=>{const code=customerCode.value.trim();const role=roleSelect.value;if(!role){showMsg('Select a role first','error');return;}if(!code){showMsg('Enter customer code','error');return;}if(role==='SalesRep'&&!isSalesRepLoggedIn){showMsg('Please login first','error');return;}const res=await api('getLeadStatus',{customerCode:code,role,salesRepEmail:salesRepEmail.value.trim(),salesRepPassword:salesRepPassword.value.trim()});if(!res.success){showMsg(res.message,'error');return;}currentLead=res.data;qualification.value=currentLead.qualification||'';presentation.value=currentLead.presentation||'';kycOnboarding.value=currentLead.kycOnboarding||'';assignEmail.value=currentLead.salesRepEmail||'';if(currentLead.qualification&&currentLead.qualification.startsWith('Other: ')){qualification.value='Other';qualificationOther.value=currentLead.qualification.substring(7);}else qualificationOther.value='';if(currentLead.presentation&&currentLead.presentation.startsWith('Other: ')){presentation.value='Other';presentationOther.value=currentLead.presentation.substring(7);}else presentationOther.value='';renderDetails(currentLead);detailsSection.classList.remove('hidden');leadsSection.classList.add('hidden');ordersSection.classList.add('hidden');updateUI();showMsg('Lead loaded (row '+currentLead.row+')','success');});
+    function renderDetails(d){const fields=[['Region',d.region],['Area',d.area],['Location',d.location],['Store Name',d.storeName],['Contact Person',d.contactPerson],['Mobile',d.mobileNumber],['Outlet Category',d.outletCategory],['Brands Stocked',d.brandsStocked],['Purchase Freq',d.purchaseFrequency],['Main Supplier',d.mainSupplier],['Distributor Type',d.distributorType],['Weldplus Aware',d.weldplusAwareness],['Feedback',d.additionalFeedback],['Customer Code',d.customerCode]];detailsTable.innerHTML='<tr>'+fields.map(f=>`<th>${f[0]}</th>`).join('')+'</tr><tr>'+fields.map(f=>`<td>${f[1]||''}</td>`).join('')+'</tr>';}
+    btnViewLeads.addEventListener('click',async()=>{const res=await api('getAllGeneratedLeads');if(!res.success){showMsg(res.message,'error');return;}renderLeadsTable(res.data,'Generated Leads');});
+    btnViewQualified.addEventListener('click',async()=>{if(!isSalesRepLoggedIn){showMsg('Please login first','error');return;}const res=await api('getQualifiedLeadsBySalesRep',{salesRepEmail:salesRepEmail.value.trim(),salesRepPassword:salesRepPassword.value.trim()});if(!res.success){showMsg(res.message,'error');return;}if(res.data.length===0){showMsg('No qualified leads found','info');return;}renderLeadsTable(res.data,'Qualified Leads');});
+    btnViewOrders.addEventListener('click',async()=>{const res=await api('getOrdersSummary');if(!res.success){showMsg(res.message,'error');return;}if(res.data.length===0){showMsg('No orders yet','info');return;}renderOrdersTable(res.data);});
+    function renderLeadsTable(leads,title){leadsTitle.textContent=title;const headers=['Region','Area','Location','Store Name','Contact','Mobile','Category','Brands','Freq','Supplier','Dist Type','Weldplus','Feedback','Code'];leadsTable.innerHTML='<thead><tr>'+headers.map(h=>`<th>${h}</th>`).join('')+'</tr></thead><tbody>'+leads.map(l=>`<tr><td>${l.region}</td><td>${l.area}</td><td>${l.location}</td><td>${l.storeName}</td><td>${l.contactPerson}</td><td>${l.mobileNumber}</td><td>${l.outletCategory}</td><td>${l.brandsStocked}</td><td>${l.purchaseFrequency}</td><td>${l.mainSupplier}</td><td>${l.distributorType}</td><td>${l.weldplusAwareness}</td><td>${l.additionalFeedback}</td><td>${l.customerCode}</td></tr>`).join('')+'</tbody>';leadsSection.classList.remove('hidden');detailsSection.classList.add('hidden');ordersSection.classList.add('hidden');}
+    function renderOrdersTable(orders){leadsTitle.textContent='Orders Summary';leadsTable.innerHTML='<thead><tr><th>Customer Code</th><th>Orders</th><th>Total Kgs</th><th>Avg Kgs</th></tr></thead><tbody>'+orders.map(o=>`<tr><td>${o.customerCode}</td><td>${o.numberOfOrders}</td><td>${o.totalQuantity.toFixed(2)}</td><td>${o.averageQuantity.toFixed(2)}</td></tr>`).join('')+'</tbody>';leadsSection.classList.remove('hidden');detailsSection.classList.add('hidden');ordersSection.classList.add('hidden');}
+    btnCloseLeads.addEventListener('click',()=>leadsSection.classList.add('hidden'));
+    qualification.addEventListener('change',()=>{qualificationOtherBox.classList.toggle('hidden',qualification.value!=='Other');if(qualification.value!=='Other')qualificationOther.value='';});
+    presentation.addEventListener('change',()=>{presentationOtherBox.classList.toggle('hidden',presentation.value!=='Other');if(presentation.value!=='Other')presentationOther.value='';});
+    btnPlaceOrder.addEventListener('click',()=>{ordersSection.classList.remove('hidden');leadsSection.classList.add('hidden');detailsSection.classList.add('hidden');orderCustomerCode.value='';orderNumber.innerHTML='<option value="">-- Check status first --</option>';orderNumber.disabled=true;orderQuantity.value='';orderStatus.classList.add('hidden');currentOrderStatus=null;});
+    btnCloseOrders.addEventListener('click',()=>ordersSection.classList.add('hidden'));
+    btnCheckStatus.addEventListener('click',async()=>{const code=orderCustomerCode.value.trim();if(!code){showMsg('Enter customer code','error');return;}if(!isSalesRepLoggedIn){showMsg('Please login first','error');return;}const res=await api('getAvailableOrders',{customerCode:code,salesRepEmail:salesRepEmail.value.trim(),salesRepPassword:salesRepPassword.value.trim()});if(!res.success){showMsg(res.message,'error');orderStatus.classList.add('hidden');return;}currentOrderStatus=res;updateOrderDropdown(res);let html='';if(res.submittedOrders.length===0)html='No orders yet. You can submit Order 1.';else if(res.nextAvailableOrder===-1)html='All 3 orders submitted.';else html=`Submitted: Order ${res.submittedOrders.join(', ')}<br><strong>Next:</strong> Order ${res.nextAvailableOrder}`;orderStatus.innerHTML=html;orderStatus.classList.remove('hidden');});
+    function updateOrderDropdown(status){let opts='<option value="">-- Select Order --</option>';for(let i=1;i<=3;i++){const submitted=status.submittedOrders.includes(i);const available=i===status.nextAvailableOrder;const disabled=submitted||(!available&&status.nextAvailableOrder!==-1);const label=submitted?`Order ${i} (Done)`:available?`Order ${i} (Available)`:`Order ${i}`;opts+=`<option value="Order ${i}" ${disabled?'disabled':''}>${label}</option>`;}orderNumber.innerHTML=opts;orderNumber.disabled=status.nextAvailableOrder===-1;}
+    btnSubmitOrder.addEventListener('click',async()=>{const code=orderCustomerCode.value.trim();const num=orderNumber.value;const qty=parseFloat(orderQuantity.value);if(!code||!num||!qty||qty<=0){showMsg('Fill all fields','error');return;}if(!currentOrderStatus){showMsg('Check status first','error');return;}if(!isSalesRepLoggedIn){showMsg('Please login first','error');return;}const res=await api('submitOrder',{customerCode:code,orderNumber:num,quantity:qty,salesRepEmail:salesRepEmail.value.trim(),salesRepPassword:salesRepPassword.value.trim()});if(res.success){showMsg(res.message,'success');orderQuantity.value='';btnCheckStatus.click();}else showMsg(res.message,'error');});
+    btnApprove.addEventListener('click',()=>updateQualification('Approved'));
+    btnDecline.addEventListener('click',()=>updateQualification('Declined'));
+    async function updateQualification(action){if(!currentLead){showMsg('Load a lead first','error');return;}if(!qualification.value){showMsg('Select qualification first','error');return;}let qualValue=qualification.value;if(qualValue==='Other'){const customText=qualificationOther.value.trim();if(!customText){showMsg('Please specify the qualification reason','error');return;}qualValue='Other: '+customText;}const res=await api('updateQualificationBySupervisor',{customerCode:customerCode.value.trim(),qualificationValue:qualValue,approvalAction:action,salesRepEmail:assignEmail.value.trim(),password:supervisorPw});if(res.success){showMsg(`Lead ${action.toLowerCase()}`,'success');btnLoad.click();loadDashboard();}else showMsg(res.message,'error');}
+    btnSubmit.addEventListener('click',async()=>{const role=roleSelect.value;const code=customerCode.value.trim();if(!currentLead||!code){showMsg('Load a lead first','error');return;}if(role==='Supervisor'){let qualValue=qualification.value;if(qualValue==='Other'){const customText=qualificationOther.value.trim();if(!customText){showMsg('Please specify the qualification reason','error');return;}qualValue='Other: '+customText;}const res=await api('updateQualificationBySupervisor',{customerCode:code,qualificationValue:qualValue,approvalAction:'',salesRepEmail:assignEmail.value.trim(),password:supervisorPw});if(res.success){showMsg('Qualification updated','success');btnLoad.click();loadDashboard();}else showMsg(res.message,'error');}else if(role==='SalesRep'){let updatesMade=[],errors=[];if(presentation.value){let presValue=presentation.value;if(presValue==='Other'){const customText=presentationOther.value.trim();if(!customText){showMsg('Please specify the presentation reason','error');return;}presValue='Other: '+customText;}const currentPres=currentLead.presentation||'';if(presValue!==currentPres){const presRes=await api('updatePresentationBySalesRep',{customerCode:code,presentationValue:presValue,salesRepEmail:salesRepEmail.value.trim(),password:salesRepPassword.value.trim()});if(presRes.success)updatesMade.push('Presentation');else errors.push('Presentation: '+presRes.message);}}if(kycOnboarding.value&&kycOnboarding.value!==currentLead.kycOnboarding){const kycRes=await api('updateKYCOnboardingBySalesRep',{customerCode:code,kycValue:kycOnboarding.value,salesRepEmail:salesRepEmail.value.trim(),password:salesRepPassword.value.trim()});if(kycRes.success)updatesMade.push('KYC Onboarding');else errors.push('KYC: '+kycRes.message);}if(updatesMade.length>0){showMsg(updatesMade.join(' and ')+' updated successfully. You have been logged out.','success');setTimeout(()=>logoutSalesRep(),2000);}else if(errors.length>0)showMsg(errors.join('; '),'error');else showMsg('No changes to save','info');}});
+    function logoutSalesRep(){isSalesRepLoggedIn=false;salesRepName='';salesRepEmail.value='';salesRepPassword.value='';salesRepEmail.disabled=false;salesRepPassword.disabled=false;btnSalesRepLogin.disabled=false;btnSalesRepLogin.textContent='Login';btnSalesRepLogin.style.background='';if(loginBadge){loginBadge.classList.remove('show');loginBadgeText.textContent='';}customerCode.value='';qualification.value='';presentation.value='';kycOnboarding.value='';qualificationOther.value='';presentationOther.value='';currentLead=null;detailsSection.classList.add('hidden');leadsSection.classList.add('hidden');ordersSection.classList.add('hidden');qualificationOtherBox.classList.add('hidden');presentationOtherBox.classList.add('hidden');updateUI();showMsg('You have been logged out. Please login again to continue.','info');}
     updateUI();
-
-    // Register SW
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js').catch(e => console.log('SW error', e));
-    }
+    if('serviceWorker' in navigator){navigator.serviceWorker.register('service-worker.js').catch(e=>console.log('SW error',e));}
   </script>
 </body>
 </html>
