@@ -6,6 +6,10 @@
   <meta name="theme-color" content="#667eea">
   <title>Steelwool Africa LTD - Lead Generation Follow-up</title>
   <link rel="manifest" href="manifest.json">
+  <!-- Libraries for PDF and Excel export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;padding:20px;display:flex;justify-content:center;align-items:center}
@@ -32,6 +36,7 @@
     .btn-teal{background:linear-gradient(135deg,#10b981 0%,#059669 100%)}
     .btn-purple{background:linear-gradient(135deg,#a855f7 0%,#9333ea 100%)}
     .btn-orange{background:linear-gradient(135deg,#f97316 0%,#ea580c 100%)}
+    .btn-dark{background:linear-gradient(135deg,#374151 0%,#1f2937 100%)}
     .message{padding:12px;border-radius:8px;margin-top:14px;display:none;font-size:13px}
     .message.success{background:#d4edda;color:#155724;border:1px solid #c3e6cb;display:block}
     .message.error{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;display:block}
@@ -66,7 +71,6 @@
     .metric-value{font-size:28px;font-weight:700;margin-bottom:4px}
     .metric-label{font-size:12px;opacity:0.9;text-transform:uppercase;letter-spacing:0.5px}
     .dashboard-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
-    /* Sales Rep Details */
     .rep-details-card{background:#f8f9ff;border:2px solid #667eea;border-radius:10px;padding:16px;margin-top:14px}
     .rep-details-card .rep-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px}
     .rep-name{font-size:16px;font-weight:700;color:#333}
@@ -79,6 +83,8 @@
     .milestone-1{background:#f97316}
     .milestone-2{background:#3b82f6}
     .milestone-3{background:#22c55e}
+    .download-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;padding-top:8px;border-top:1px dashed #e1e8ed}
+    .download-row .btn.small{font-size:11px;padding:6px 10px}
     @media(max-width:640px){
       .btn-row{flex-direction:column}
       .btn.small{width:100%}
@@ -92,6 +98,7 @@
       .metric-card{padding:12px}
       .metric-value{font-size:24px}
       .rep-stats{flex-direction:column}
+      .download-row{flex-direction:column}
     }
   </style>
 </head>
@@ -103,7 +110,6 @@
     </div>
     <div id="loginBadge" class="login-badge"><span class="icon">👨‍💼</span><span id="loginBadgeText"></span></div>
 
-    <!-- Supervisor Dashboard -->
     <div id="supervisorDashboard" class="dashboard hidden">
       <div class="dashboard-title">📊 Supervisor Dashboard</div>
       <div class="dashboard-metrics">
@@ -120,7 +126,6 @@
       </div>
     </div>
 
-    <!-- Sales Rep Details Section (Supervisor only) -->
     <div id="salesRepDetailsSection" class="hidden">
       <div class="section-title">👤 Sales Representative Details</div>
       <div class="form-group">
@@ -137,23 +142,29 @@
           <option value="eastern.swal@gmail.com">MUSYA KITHEKA</option>
         </select>
       </div>
-      <!-- Rep Info Card -->
       <div id="repDetailsCard" class="rep-details-card hidden">
         <div class="rep-header">
-          <div>
-            <div class="rep-name" id="repName"></div>
-            <div class="rep-email" id="repEmail"></div>
-          </div>
+          <div><div class="rep-name" id="repName"></div><div class="rep-email" id="repEmail"></div></div>
         </div>
         <div class="rep-stats">
           <div class="rep-stat"><div class="rep-stat-value" id="repTotalLeads">0</div><div class="rep-stat-label">Generated Leads</div></div>
           <div class="rep-stat"><div class="rep-stat-value" id="repConvertedCount">0</div><div class="rep-stat-label">Converted Leads</div></div>
         </div>
-        <div class="btn-row" style="margin-bottom:12px">
+        <div class="btn-row" style="margin-bottom:4px">
           <button class="btn small btn-blue" id="btnRepAllLeads">📋 View All Leads</button>
           <button class="btn small btn-orange" id="btnRepConvertedLeads">📦 View Converted Leads</button>
         </div>
-        <!-- Rep Leads Table -->
+        <!-- Download Buttons -->
+        <div class="download-row">
+          <span style="font-size:12px;font-weight:600;color:#333;margin-right:4px;align-self:center">⬇️ Download All Leads:</span>
+          <button class="btn small btn-teal" id="btnDownloadAllExcel">📗 Excel</button>
+          <button class="btn small btn-red" id="btnDownloadAllPdf">📕 PDF</button>
+        </div>
+        <div class="download-row">
+          <span style="font-size:12px;font-weight:600;color:#333;margin-right:4px;align-self:center">⬇️ Download Converted:</span>
+          <button class="btn small btn-teal" id="btnDownloadConvertedExcel">📗 Excel</button>
+          <button class="btn small btn-red" id="btnDownloadConvertedPdf">📕 PDF</button>
+        </div>
         <div id="repLeadsTableSection" class="hidden">
           <div class="section-title" id="repLeadsTitle" style="margin-top:8px">Leads</div>
           <div class="table-wrap"><table class="leads-table" id="repLeadsTable"></table></div>
@@ -165,11 +176,7 @@
     <div id="app">
       <div class="form-group">
         <label>Select Role *</label>
-        <select id="roleSelect">
-          <option value="">-- Select Role --</option>
-          <option value="Supervisor">Supervisor</option>
-          <option value="SalesRep">Sales Representative</option>
-        </select>
+        <select id="roleSelect"><option value="">-- Select Role --</option><option value="Supervisor">Supervisor</option><option value="SalesRep">Sales Representative</option></select>
         <div class="meta">Supervisor: edit Qualification, Approve/Decline. Sales Rep: edit Presentation, place Orders.</div>
       </div>
       <div id="salesRepAuth" class="hidden">
@@ -184,20 +191,9 @@
         <button class="btn small btn-blue hidden" id="btnViewQualified">View Qualified Leads</button>
         <button class="btn small btn-teal hidden" id="btnPlaceOrder">Place Order</button>
       </div>
-      <div class="form-group">
-        <label>Customer Code *</label>
-        <div class="field-inline"><input type="text" id="customerCode" placeholder="Enter customer code"><button class="btn small" id="btnLoad">Load</button></div>
-        <div class="meta">Enter code and click Load to fetch data.</div>
-      </div>
-      <div id="detailsSection" class="hidden">
-        <div class="section-title">Customer Details</div>
-        <div style="overflow-x:auto"><table class="details-table" id="detailsTable"></table></div>
-      </div>
-      <div id="leadsSection" class="hidden">
-        <div class="section-title" id="leadsTitle">Leads</div>
-        <div class="table-wrap"><table class="leads-table" id="leadsTable"></table></div>
-        <button class="btn small btn-gray" id="btnCloseLeads" style="margin-top:12px">Close List</button>
-      </div>
+      <div class="form-group"><label>Customer Code *</label><div class="field-inline"><input type="text" id="customerCode" placeholder="Enter customer code"><button class="btn small" id="btnLoad">Load</button></div><div class="meta">Enter code and click Load to fetch data.</div></div>
+      <div id="detailsSection" class="hidden"><div class="section-title">Customer Details</div><div style="overflow-x:auto"><table class="details-table" id="detailsTable"></table></div></div>
+      <div id="leadsSection" class="hidden"><div class="section-title" id="leadsTitle">Leads</div><div class="table-wrap"><table class="leads-table" id="leadsTable"></table></div><button class="btn small btn-gray" id="btnCloseLeads" style="margin-top:12px">Close List</button></div>
       <div id="ordersSection" class="hidden">
         <div class="section-title">Place Order</div>
         <div class="form-group"><label>Customer Code *</label><div class="field-inline"><input type="text" id="orderCustomerCode" placeholder="Enter customer code"><button class="btn small" id="btnCheckStatus">Check Status</button></div></div>
@@ -224,16 +220,85 @@
   <div id="passwordModal" class="hidden"><div class="modal-overlay"><div class="modal"><h3>Supervisor Password</h3><input type="password" id="supervisorPassword" placeholder="Enter password" style="width:100%;padding:10px;border:1px solid #e1e8ed;border-radius:6px"><div id="passwordHint" class="hint"></div><div class="modal-actions"><button class="btn small btn-gray" id="btnCancelPassword">Cancel</button><button class="btn small" id="btnConfirmPassword">Submit</button></div></div></div></div>
 
   <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwMY1AnBlsXSYXEj0eCVjR8i5hNvF6c5nSf11plZfZznc19RmOQIeNUZX0rsvHHhn2uvA/exec';
+    const API_URL='https://script.google.com/macros/s/AKfycbwMY1AnBlsXSYXEj0eCVjR8i5hNvF6c5nSf11plZfZznc19RmOQIeNUZX0rsvHHhn2uvA/exec';
     let currentLead=null,isSupervisorAuth=false,supervisorPw='',currentOrderStatus=null,salesRepName='',isSalesRepLoggedIn=false,dashboardData=null,currentRepData=null;
     const $=id=>document.getElementById(id);
     const roleSelect=$('roleSelect'),salesRepAuth=$('salesRepAuth'),salesRepEmail=$('salesRepEmail'),salesRepPassword=$('salesRepPassword'),btnSalesRepLogin=$('btnSalesRepLogin'),salesRepLoginMsg=$('salesRepLoginMsg'),loginBadge=$('loginBadge'),loginBadgeText=$('loginBadgeText'),actionButtons=$('actionButtons'),btnViewLeads=$('btnViewLeads'),btnViewOrders=$('btnViewOrders'),btnViewQualified=$('btnViewQualified'),btnPlaceOrder=$('btnPlaceOrder'),customerCode=$('customerCode'),btnLoad=$('btnLoad'),detailsSection=$('detailsSection'),detailsTable=$('detailsTable'),leadsSection=$('leadsSection'),leadsTitle=$('leadsTitle'),leadsTable=$('leadsTable'),btnCloseLeads=$('btnCloseLeads'),ordersSection=$('ordersSection'),orderCustomerCode=$('orderCustomerCode'),btnCheckStatus=$('btnCheckStatus'),orderStatus=$('orderStatus'),orderNumber=$('orderNumber'),orderQuantity=$('orderQuantity'),btnSubmitOrder=$('btnSubmitOrder'),btnCloseOrders=$('btnCloseOrders'),qualification=$('qualification'),approvalButtons=$('approvalButtons'),btnApprove=$('btnApprove'),btnDecline=$('btnDecline'),presentation=$('presentation'),presentationOtherBox=$('presentationOtherBox'),presentationOther=$('presentationOther'),kycOnboarding=$('kycOnboarding'),qualificationOtherBox=$('qualificationOtherBox'),qualificationOther=$('qualificationOther'),assignSalesRep=$('assignSalesRep'),assignEmail=$('assignEmail'),btnSubmit=$('btnSubmit'),loading=$('loading'),message=$('message'),passwordModal=$('passwordModal'),supervisorPassword=$('supervisorPassword'),passwordHint=$('passwordHint'),btnCancelPassword=$('btnCancelPassword'),btnConfirmPassword=$('btnConfirmPassword');
     const supervisorDashboard=$('supervisorDashboard'),metricTotalLeads=$('metricTotalLeads'),metricQualifiedLeads=$('metricQualifiedLeads'),metricQualificationRate=$('metricQualificationRate'),metricApprovedLeads=$('metricApprovedLeads'),metricConvertedLeads=$('metricConvertedLeads'),metricConversionRate=$('metricConversionRate'),btnRefreshDashboard=$('btnRefreshDashboard'),btnViewApprovedLeads=$('btnViewApprovedLeads');
-    // Sales Rep Details elements
     const salesRepDetailsSection=$('salesRepDetailsSection'),salesRepSelect=$('salesRepSelect'),repDetailsCard=$('repDetailsCard'),repName=$('repName'),repEmail=$('repEmail'),repTotalLeads=$('repTotalLeads'),repConvertedCount=$('repConvertedCount'),btnRepAllLeads=$('btnRepAllLeads'),btnRepConvertedLeads=$('btnRepConvertedLeads'),repLeadsTableSection=$('repLeadsTableSection'),repLeadsTitle=$('repLeadsTitle'),repLeadsTable=$('repLeadsTable'),btnCloseRepLeads=$('btnCloseRepLeads');
 
     async function api(action,data={}){loading.classList.add('show');try{const res=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action,...data})});return await res.json();}catch(e){return{success:false,message:'Network error: '+e.message};}finally{loading.classList.remove('show');}}
     function showMsg(text,type='info'){message.className='message '+type;message.textContent=text;message.style.display='block';setTimeout(()=>message.style.display='none',5000);}
+
+    // ========== DOWNLOAD FUNCTIONS ==========
+    function downloadExcel(data, headers, filename) {
+      const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
+      // Auto-width columns
+      ws['!cols'] = headers.map((h, i) => {
+        const maxLen = Math.max(h.length, ...data.map(r => String(r[i] || '').length));
+        return { wch: Math.min(maxLen + 2, 30) };
+      });
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Data');
+      XLSX.writeFile(wb, filename + '.xlsx');
+    }
+
+    function downloadPdf(data, headers, filename, title) {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: headers.length > 6 ? 'landscape' : 'portrait' });
+      // Title
+      doc.setFontSize(14);
+      doc.setFont(undefined, 'bold');
+      doc.text(title, 14, 18);
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'normal');
+      doc.text('Steelwool Africa LTD - Generated on ' + new Date().toLocaleDateString(), 14, 25);
+      // Table
+      doc.autoTable({
+        head: [headers],
+        body: data,
+        startY: 30,
+        styles: { fontSize: 7, cellPadding: 2 },
+        headStyles: { fillColor: [102, 126, 234], textColor: 255, fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [245, 247, 255] },
+        margin: { top: 30 }
+      });
+      doc.save(filename + '.pdf');
+    }
+
+    // Download All Leads
+    $('btnDownloadAllExcel').addEventListener('click', () => {
+      if (!currentRepData || !currentRepData.generatedLeads || currentRepData.generatedLeads.length === 0) { showMsg('No leads to download. Select a sales rep first.', 'error'); return; }
+      const headers = ['Code', 'Store Name', 'Area', 'Region', 'Location', 'Contact', 'Mobile', 'Qualification', 'Approval', 'Presentation', 'KYC'];
+      const data = currentRepData.generatedLeads.map(l => [l.customerCode, l.storeName, l.area, l.region, l.location, l.contactPerson, l.mobileNumber, l.qualification, l.approval, l.presentation, l.kycOnboarding]);
+      downloadExcel(data, headers, currentRepData.name + ' - All Leads');
+      showMsg('Excel downloaded!', 'success');
+    });
+
+    $('btnDownloadAllPdf').addEventListener('click', () => {
+      if (!currentRepData || !currentRepData.generatedLeads || currentRepData.generatedLeads.length === 0) { showMsg('No leads to download. Select a sales rep first.', 'error'); return; }
+      const headers = ['Code', 'Store Name', 'Area', 'Region', 'Location', 'Contact', 'Mobile', 'Qualification', 'Approval', 'Presentation', 'KYC'];
+      const data = currentRepData.generatedLeads.map(l => [l.customerCode, l.storeName, l.area, l.region, l.location, l.contactPerson, l.mobileNumber, l.qualification, l.approval, l.presentation, l.kycOnboarding]);
+      downloadPdf(data, headers, currentRepData.name + ' - All Leads', 'All Generated Leads - ' + currentRepData.name);
+      showMsg('PDF downloaded!', 'success');
+    });
+
+    // Download Converted Leads
+    $('btnDownloadConvertedExcel').addEventListener('click', () => {
+      if (!currentRepData || !currentRepData.convertedLeads || currentRepData.convertedLeads.length === 0) { showMsg('No converted leads to download.', 'error'); return; }
+      const headers = ['Code', 'Store Name', 'Area', 'Region', 'Contact', 'Order 1 (Kgs)', 'Order 2 (Kgs)', 'Order 3 (Kgs)', 'Total (Kgs)', 'Milestone'];
+      const data = currentRepData.convertedLeads.map(l => [l.customerCode, l.storeName, l.area, l.region, l.contactPerson, l.order1Qty > 0 ? l.order1Qty : '-', l.order2Qty > 0 ? l.order2Qty : '-', l.order3Qty > 0 ? l.order3Qty : '-', l.totalQty, l.milestone]);
+      downloadExcel(data, headers, currentRepData.name + ' - Converted Leads');
+      showMsg('Excel downloaded!', 'success');
+    });
+
+    $('btnDownloadConvertedPdf').addEventListener('click', () => {
+      if (!currentRepData || !currentRepData.convertedLeads || currentRepData.convertedLeads.length === 0) { showMsg('No converted leads to download.', 'error'); return; }
+      const headers = ['Code', 'Store Name', 'Area', 'Region', 'Contact', 'Order 1 (Kgs)', 'Order 2 (Kgs)', 'Order 3 (Kgs)', 'Total (Kgs)', 'Milestone'];
+      const data = currentRepData.convertedLeads.map(l => [l.customerCode, l.storeName, l.area, l.region, l.contactPerson, l.order1Qty > 0 ? l.order1Qty : '-', l.order2Qty > 0 ? l.order2Qty : '-', l.order3Qty > 0 ? l.order3Qty : '-', l.totalQty, l.milestone]);
+      downloadPdf(data, headers, currentRepData.name + ' - Converted Leads', 'Converted Leads - ' + currentRepData.name);
+      showMsg('PDF downloaded!', 'success');
+    });
 
     // Dashboard
     async function loadDashboard(){if(!isSupervisorAuth||!supervisorPw)return;const res=await api('getSupervisorDashboard',{password:supervisorPw});if(res.success){dashboardData=res.data;metricTotalLeads.textContent=res.data.totalLeads;metricQualifiedLeads.textContent=res.data.qualifiedLeads;metricQualificationRate.textContent=res.data.qualificationRate+'%';metricApprovedLeads.textContent=res.data.approvedLeadsCount;metricConvertedLeads.textContent=res.data.convertedLeads;metricConversionRate.textContent=res.data.conversionRate+'%';supervisorDashboard.classList.remove('hidden');}else{showMsg('Failed to load dashboard: '+res.message,'error');}}
@@ -246,11 +311,9 @@
     btnRepConvertedLeads.addEventListener('click',()=>{if(!currentRepData||!currentRepData.convertedLeads)return;if(currentRepData.convertedLeads.length===0){showMsg('No converted leads for this rep','info');return;}repLeadsTitle.textContent='Converted Leads ('+currentRepData.convertedCount+')';const headers=['Code','Store Name','Area','Order 1 (Kgs)','Order 2 (Kgs)','Order 3 (Kgs)','Total (Kgs)','Milestone'];repLeadsTable.innerHTML='<thead><tr>'+headers.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>'+currentRepData.convertedLeads.map(l=>{let badgeClass='milestone-1';if(l.completedOrders===3)badgeClass='milestone-3';else if(l.completedOrders===2)badgeClass='milestone-2';return '<tr><td>'+l.customerCode+'</td><td>'+l.storeName+'</td><td>'+l.area+'</td><td>'+(l.order1Qty>0?l.order1Qty.toFixed(2):'-')+'</td><td>'+(l.order2Qty>0?l.order2Qty.toFixed(2):'-')+'</td><td>'+(l.order3Qty>0?l.order3Qty.toFixed(2):'-')+'</td><td>'+l.totalQty.toFixed(2)+'</td><td><span class="milestone-badge '+badgeClass+'">'+l.milestone+'</span></td></tr>';}).join('')+'</tbody>';repLeadsTableSection.classList.remove('hidden');});
     btnCloseRepLeads.addEventListener('click',()=>repLeadsTableSection.classList.add('hidden'));
 
-    // UI Update
     function updateUI(){const role=roleSelect.value;if(role==='Supervisor'&&isSupervisorAuth){supervisorDashboard.classList.remove('hidden');salesRepDetailsSection.classList.remove('hidden');}else{supervisorDashboard.classList.add('hidden');salesRepDetailsSection.classList.add('hidden');}if(role==='SalesRep')salesRepAuth.classList.remove('hidden');else salesRepAuth.classList.add('hidden');if(role==='SalesRep'&&isSalesRepLoggedIn)actionButtons.classList.remove('hidden');else if(role==='Supervisor')actionButtons.classList.remove('hidden');else actionButtons.classList.add('hidden');btnViewLeads.classList.toggle('hidden',role!=='Supervisor');btnViewOrders.classList.toggle('hidden',role!=='Supervisor');btnViewQualified.classList.toggle('hidden',role!=='SalesRep');btnPlaceOrder.classList.toggle('hidden',role!=='SalesRep');approvalButtons.classList.toggle('hidden',role!=='Supervisor'||!isSupervisorAuth);assignSalesRep.classList.toggle('hidden',role!=='Supervisor'||!isSupervisorAuth);qualification.disabled=role!=='Supervisor'||!isSupervisorAuth;presentation.disabled=role!=='SalesRep'||!currentLead||currentLead.approval!=='Approved'||!isSalesRepLoggedIn;kycOnboarding.disabled=role!=='SalesRep'||!currentLead||currentLead.approval!=='Approved'||!isSalesRepLoggedIn;if(role==='SalesRep'){customerCode.disabled=!isSalesRepLoggedIn;btnLoad.disabled=!isSalesRepLoggedIn;}else{customerCode.disabled=false;btnLoad.disabled=false;}qualificationOtherBox.classList.toggle('hidden',qualification.value!=='Other');presentationOtherBox.classList.toggle('hidden',presentation.value!=='Other');if(role==='Supervisor'&&!isSupervisorAuth)showPasswordModal();}
     function showPasswordModal(){passwordModal.classList.remove('hidden');supervisorPassword.value='';passwordHint.style.display='none';supervisorPassword.focus();}
     function hidePasswordModal(){passwordModal.classList.add('hidden');}
-
     roleSelect.addEventListener('change',()=>{currentLead=null;detailsSection.classList.add('hidden');leadsSection.classList.add('hidden');ordersSection.classList.add('hidden');supervisorDashboard.classList.add('hidden');salesRepDetailsSection.classList.add('hidden');qualification.value='';presentation.value='';kycOnboarding.value='';qualificationOther.value='';presentationOther.value='';qualificationOtherBox.classList.add('hidden');presentationOtherBox.classList.add('hidden');salesRepLoginMsg.style.display='none';if(roleSelect.value==='SalesRep'){isSalesRepLoggedIn=false;salesRepName='';salesRepEmail.value='';salesRepPassword.value='';if(loginBadge){loginBadge.classList.remove('show');loginBadgeText.textContent='';}}if(roleSelect.value!=='Supervisor'){isSupervisorAuth=false;supervisorPw='';}updateUI();});
     btnCancelPassword.addEventListener('click',()=>{hidePasswordModal();roleSelect.value='';updateUI();});
     btnConfirmPassword.addEventListener('click',async()=>{const pw=supervisorPassword.value.trim();if(!pw){passwordHint.textContent='Enter password';passwordHint.style.display='block';return;}const res=await api('validateSupervisorPassword',{password:pw});if(res.success){isSupervisorAuth=true;supervisorPw=pw;hidePasswordModal();if(loginBadge){loginBadge.classList.add('show');loginBadgeText.textContent='Logged in as: Supervisor';}updateUI();loadDashboard();showMsg('Supervisor authenticated','success');}else{passwordHint.textContent=res.message||'Invalid password';passwordHint.style.display='block';}});
