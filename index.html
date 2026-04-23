@@ -156,9 +156,10 @@
           <div class="form-group"><label>Mobile Number</label><input type="tel" id="lfMobileNumber" placeholder="Enter mobile number"></div>
           <div class="form-group"><label>Outlet Category (based on monthly sales volume) <span class="required">*</span></label><select id="lfOutletCategory"><option value="">-- Select Category --</option><option>Small ( Monthly volume of less than 100Kg)</option><option>Medium ( Monthly volume between 100Kg-400kg)</option><option>Large: ( Monthly Volume between 400kg-1000kg)</option><option>Mega: ( Monthly Volume above 1000kg)</option></select></div>
           <div class="form-group"><label>Which brands is the outlet currently stocking? <span class="required">*</span></label><div class="checkbox-group" id="lfBrandsGroup"><label><input type="checkbox" value="Weldplus">Weldplus</label><label><input type="checkbox" value="AGI">AGI</label><label><input type="checkbox" value="Maruthi">Maruthi</label><label><input type="checkbox" value="Simba">Simba</label><label><input type="checkbox" value="Hero">Hero</label><label><input type="checkbox" value="Fontarc">Fontarc</label></div></div>
-          <div class="form-group"><label>Frequency of purchase of welding electrodes <span class="required">*</span></label><select id="lfPurchaseFreq"><option value="">-- Select Frequency --</option><option>Weekly</option><option>Twice per month</option><option>Monthly</option><option>Other</option></select></div>
+         <div class="form-group"><label>Frequency of purchase of welding electrodes <span class="required">*</span></label><select id="lfPurchaseFreq"><option value="">-- Select Frequency --</option><option>Weekly</option><option>Twice per month</option><option>Monthly</option><option>Other</option></select></div>
+<div id="lfPurchaseFreqOtherBox" class="form-group hidden"><label>Specify other frequency <span class="required">*</span></label><input type="text" id="lfPurchaseFreqOther" placeholder="Enter purchase frequency" maxlength="200"></div>
           <div class="form-group"><label>Do they purchase from Manufacturer or Distributor? <span class="required">*</span></label><select id="lfDistributorType"><option value="">-- Select --</option><option>Manufacturer</option><option>Distributor</option></select></div>
-          <div class="form-group"><label>Which distributor do they buy welding electrodes from?</label><select id="lfMainSupplier"><option value="">-- Select --</option><option>Manufacturer</option><option>Distributor</option></select></div>
+        <div class="form-group"><label>Which distributor do they buy welding electrodes from?</label><input type="text" id="lfMainSupplier" placeholder="Enter distributor name"></div>
           <div class="form-group"><label>Have they ever heard about Weldplus? <span class="required">*</span></label><select id="lfWeldplusAware"><option value="">-- Select --</option><option>Yes</option><option>No</option></select></div>
           <div class="form-group"><label>Additional feedback (leave blank if none)</label><textarea id="lfAdditionalFeedback" placeholder="Record any additional feedback..."></textarea></div>
           <div class="btn-row"><button class="btn btn-green" id="btnSubmitLeadForm">✅ Submit Lead</button><button class="btn btn-gray" id="btnCloseLeadForm" style="margin-top:4px">Cancel</button></div>
@@ -220,8 +221,17 @@
     btnGenerateLead.addEventListener('click',()=>{leadFormSection.classList.remove('hidden');ordersSection.classList.add('hidden');leadsSection.classList.add('hidden');detailsSection.classList.add('hidden');});
     $('btnCloseLeadForm').addEventListener('click',()=>{leadFormSection.classList.add('hidden');});
 
+      // Purchase Frequency "Other" toggle
+    $('lfPurchaseFreq').addEventListener('change', () => {
+      $('lfPurchaseFreqOtherBox').classList.toggle('hidden', $('lfPurchaseFreq').value !== 'Other');
+      if ($('lfPurchaseFreq').value !== 'Other') $('lfPurchaseFreqOther').value = '';
+    });
+
     $('btnSubmitLeadForm').addEventListener('click',async()=>{
-      const region=$('lfRegion').value;const area=$('lfArea').value.trim();const location=$('lfLocation').value.trim();const storeName=$('lfStoreName').value.trim();const contactPerson=$('lfContactPerson').value.trim();const mobileNumber=$('lfMobileNumber').value.trim();const outletCategory=$('lfOutletCategory').value;const purchaseFrequency=$('lfPurchaseFreq').value;const distributorType=$('lfDistributorType').value;const mainSupplier=$('lfMainSupplier').value;const weldplusAwareness=$('lfWeldplusAware').value;const additionalFeedback=$('lfAdditionalFeedback').value.trim();
+      const region=$('lfRegion').value;const area=$('lfArea').value.trim();const location=$('lfLocation').value.trim();const storeName=$('lfStoreName').value.trim();const contactPerson=$('lfContactPerson').value.trim();const mobileNumber=$('lfMobileNumber').value.trim();const outletCategory=$('lfOutletCategory').value;const distributorType=$('lfDistributorType').value;const mainSupplier=$('lfMainSupplier').value.trim();const weldplusAwareness=$('lfWeldplusAware').value;const additionalFeedback=$('lfAdditionalFeedback').value.trim();
+      // Handle purchase frequency with "Other" option
+      let purchaseFrequency=$('lfPurchaseFreq').value;
+      if(purchaseFrequency==='Other'){const otherText=$('lfPurchaseFreqOther').value.trim();if(!otherText){showMsg('Please specify the purchase frequency','error');return;}purchaseFrequency='Other: '+otherText;}
       // Get checked brands
       const brandCheckboxes=document.querySelectorAll('#lfBrandsGroup input[type="checkbox"]:checked');
       const brandsStocked=Array.from(brandCheckboxes).map(cb=>cb.value).join(', ');
@@ -238,7 +248,7 @@
       const res=await api('submitLeadForm',{salesRepEmail:salesRepEmail.value.trim(),salesRepPassword:salesRepPassword.value.trim(),region,area,location,storeName,contactPerson,mobileNumber,outletCategory,brandsStocked,purchaseFrequency,mainSupplier,distributorType,weldplusAwareness,additionalFeedback});
       if(res.success){showMsg(res.message,'success');
         // Reset form
-        $('lfRegion').value='';$('lfArea').value='';$('lfLocation').value='';$('lfStoreName').value='';$('lfContactPerson').value='';$('lfMobileNumber').value='';$('lfOutletCategory').value='';$('lfPurchaseFreq').value='';$('lfDistributorType').value='';$('lfMainSupplier').value='';$('lfWeldplusAware').value='';$('lfAdditionalFeedback').value='';
+        $('lfRegion').value='';$('lfArea').value='';$('lfLocation').value='';$('lfStoreName').value='';$('lfContactPerson').value='';$('lfMobileNumber').value='';$('lfOutletCategory').value='';$('lfPurchaseFreq').value='';$('lfPurchaseFreqOther').value='';$('lfPurchaseFreqOtherBox').classList.add('hidden');$('lfDistributorType').value='';$('lfMainSupplier').value='';$('lfWeldplusAware').value='';$('lfAdditionalFeedback').value='';
         document.querySelectorAll('#lfBrandsGroup input[type="checkbox"]').forEach(cb=>cb.checked=false);
         leadFormSection.classList.add('hidden');
       }else showMsg(res.message,'error');
