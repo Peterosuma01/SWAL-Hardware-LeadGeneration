@@ -37,6 +37,7 @@
     .btn-purple{background:linear-gradient(135deg,#a855f7 0%,#9333ea 100%)}
     .btn-orange{background:linear-gradient(135deg,#f97316 0%,#ea580c 100%)}
     .btn-dark{background:linear-gradient(135deg,#374151 0%,#1f2937 100%)}
+    .btn-amber{background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);color:#1f2937}
     .message{padding:12px;border-radius:8px;margin-top:14px;display:none;font-size:13px}
     .message.success{background:#d4edda;color:#155724;border:1px solid #c3e6cb;display:block}
     .message.error{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;display:block}
@@ -66,8 +67,9 @@
     .login-badge .icon{font-size:18px;margin-right:8px}
     .dashboard{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:12px;padding:20px;margin-bottom:20px;color:#fff;box-shadow:0 8px 24px rgba(102,126,234,0.3)}
     .dashboard-title{font-size:18px;font-weight:700;margin-bottom:16px;text-align:center}
-    .dashboard-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px}
+    .dashboard-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:16px}
     .metric-card{background:rgba(255,255,255,0.15);backdrop-filter:blur(10px);border-radius:8px;padding:14px;text-align:center;border:1px solid rgba(255,255,255,0.2)}
+    .metric-card.pending{background:rgba(251,191,36,0.25);border-color:rgba(251,191,36,0.5)}
     .metric-value{font-size:28px;font-weight:700;margin-bottom:4px}
     .metric-label{font-size:12px;opacity:0.9;text-transform:uppercase;letter-spacing:0.5px}
     .dashboard-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
@@ -90,6 +92,7 @@
     .lead-form-card{background:linear-gradient(135deg,#f0fdf4 0%,#ecfdf5 100%);border:2px solid #22c55e;border-radius:12px;padding:20px;margin-top:14px}
     .lead-form-card .section-title{color:#16a34a}
     .required{color:#dc2626}
+    .pending-badge{display:inline-block;background:#fef3c7;color:#92400e;border:1px solid #fcd34d;border-radius:12px;padding:2px 10px;font-size:11px;font-weight:700;margin-left:6px;vertical-align:middle}
     @media(max-width:640px){
       .btn-row{flex-direction:column}.btn.small{width:100%}.container{padding:16px;margin:10px}
       .field-inline{flex-direction:column}.field-inline>input{width:100%;min-height:50px;font-size:16px}
@@ -104,6 +107,8 @@
   <div class="container">
     <div class="header"><div class="header-title"><h1>Steelwool (Africa) Limited</h1></div><p class="subtitle">Hardware Lead Generation Follow-up</p></div>
     <div id="loginBadge" class="login-badge"><span class="icon">👨‍💼</span><span id="loginBadgeText"></span></div>
+
+    <!-- SUPERVISOR DASHBOARD -->
     <div id="supervisorDashboard" class="dashboard hidden">
       <div class="dashboard-title">📊 Supervisor Dashboard</div>
       <div class="dashboard-metrics">
@@ -111,11 +116,18 @@
         <div class="metric-card"><div class="metric-value" id="metricQualifiedLeads">0</div><div class="metric-label">Qualified Leads</div></div>
         <div class="metric-card"><div class="metric-value" id="metricQualificationRate">0%</div><div class="metric-label">Qualification Rate</div></div>
         <div class="metric-card"><div class="metric-value" id="metricApprovedLeads">0</div><div class="metric-label">Approved Leads</div></div>
+        <div class="metric-card pending"><div class="metric-value" id="metricPendingLeads">0</div><div class="metric-label">Pending Approval</div></div>
         <div class="metric-card" style="background:rgba(34,197,94,0.2);border-color:rgba(34,197,94,0.3)"><div class="metric-value" id="metricConvertedLeads">0</div><div class="metric-label">Converted Leads</div></div>
         <div class="metric-card" style="background:rgba(34,197,94,0.2);border-color:rgba(34,197,94,0.3)"><div class="metric-value" id="metricConversionRate">0%</div><div class="metric-label">Conversion Rate</div></div>
       </div>
-      <div class="dashboard-actions"><button class="btn small" id="btnRefreshDashboard" style="background:rgba(255,255,255,0.2)">🔄 Refresh</button><button class="btn small" id="btnViewApprovedLeads" style="background:rgba(34,197,94,0.9)">✅ View Approved Leads</button></div>
+      <div class="dashboard-actions">
+        <button class="btn small" id="btnRefreshDashboard" style="background:rgba(255,255,255,0.2)">🔄 Refresh</button>
+        <button class="btn small" id="btnViewPendingLeads" style="background:rgba(251,191,36,0.85);color:#1f2937;font-weight:700">⏳ Pending Approval</button>
+        <button class="btn small" id="btnViewApprovedLeads" style="background:rgba(34,197,94,0.9)">✅ View Approved Leads</button>
+      </div>
     </div>
+
+    <!-- SALES REP DETAILS SECTION -->
     <div id="salesRepDetailsSection" class="hidden">
       <div class="section-title">👤 Sales Representative Details</div>
       <div class="form-group"><label>Select Sales Representative</label><select id="salesRepSelect"><option value="">-- Select Sales Rep --</option><option value="hardware1.swal@gmail.com">VALTO ONYANGO</option><option value="mountain.swal@gmail.com">FRANCIS OBALA</option><option value="hardware2.swal@gmail.com">STEPHEN MUENDO</option><option value="hardware3.swal@gmail.com">LAVINE KISANYA</option><option value="hardware4.swal@gmail.com">NGAIRA BRIAN</option><option value="hardware5.swal@gmail.com">KENNETH MUGAH</option><option value="hardware6.swal@gmail.com">ANTHONY BUNDI MUGAMBI</option><option value="eastern.swal@gmail.com">MUSYA KITHEKA</option></select></div>
@@ -128,6 +140,7 @@
         <div id="repLeadsTableSection" class="hidden"><div class="section-title" id="repLeadsTitle" style="margin-top:8px">Leads</div><div class="table-wrap"><table class="leads-table" id="repLeadsTable"></table></div><button class="btn small btn-gray" id="btnCloseRepLeads" style="margin-top:8px">Close</button></div>
       </div>
     </div>
+
     <div id="app">
       <div class="form-group"><label>Select Role *</label><select id="roleSelect"><option value="">-- Select Role --</option><option value="Supervisor">Supervisor</option><option value="SalesRep">Sales Representative</option></select><div class="meta">Supervisor: edit Qualification, Approve/Decline. Sales Rep: edit Presentation, place Orders, Generate Leads.</div></div>
       <div id="salesRepAuth" class="hidden">
@@ -156,10 +169,10 @@
           <div class="form-group"><label>Mobile Number</label><input type="tel" id="lfMobileNumber" placeholder="Enter mobile number"></div>
           <div class="form-group"><label>Outlet Category (based on monthly sales volume) <span class="required">*</span></label><select id="lfOutletCategory"><option value="">-- Select Category --</option><option>Small ( Monthly volume of less than 100Kg)</option><option>Medium ( Monthly volume between 100Kg-400kg)</option><option>Large: ( Monthly Volume between 400kg-1000kg)</option><option>Mega: ( Monthly Volume above 1000kg)</option></select></div>
           <div class="form-group"><label>Which brands is the outlet currently stocking? <span class="required">*</span></label><div class="checkbox-group" id="lfBrandsGroup"><label><input type="checkbox" value="Weldplus">Weldplus</label><label><input type="checkbox" value="AGI">AGI</label><label><input type="checkbox" value="Maruthi">Maruthi</label><label><input type="checkbox" value="Simba">Simba</label><label><input type="checkbox" value="Hero">Hero</label><label><input type="checkbox" value="Fontarc">Fontarc</label></div></div>
-         <div class="form-group"><label>Frequency of purchase of welding electrodes <span class="required">*</span></label><select id="lfPurchaseFreq"><option value="">-- Select Frequency --</option><option>Weekly</option><option>Twice per month</option><option>Monthly</option><option>Other</option></select></div>
-<div id="lfPurchaseFreqOtherBox" class="form-group hidden"><label>Specify other frequency <span class="required">*</span></label><input type="text" id="lfPurchaseFreqOther" placeholder="Enter purchase frequency" maxlength="200"></div>
+          <div class="form-group"><label>Frequency of purchase of welding electrodes <span class="required">*</span></label><select id="lfPurchaseFreq"><option value="">-- Select Frequency --</option><option>Weekly</option><option>Twice per month</option><option>Monthly</option><option>Other</option></select></div>
+          <div id="lfPurchaseFreqOtherBox" class="form-group hidden"><label>Specify other frequency <span class="required">*</span></label><input type="text" id="lfPurchaseFreqOther" placeholder="Enter purchase frequency" maxlength="200"></div>
           <div class="form-group"><label>Do they purchase from Manufacturer or Distributor? <span class="required">*</span></label><select id="lfDistributorType"><option value="">-- Select --</option><option>Manufacturer</option><option>Distributor</option></select></div>
-        <div class="form-group"><label>Which distributor do they buy welding electrodes from?</label><input type="text" id="lfMainSupplier" placeholder="Enter distributor name"></div>
+          <div class="form-group"><label>Which distributor do they buy welding electrodes from?</label><input type="text" id="lfMainSupplier" placeholder="Enter distributor name"></div>
           <div class="form-group"><label>Have they ever heard about Weldplus? <span class="required">*</span></label><select id="lfWeldplusAware"><option value="">-- Select --</option><option>Yes</option><option>No</option></select></div>
           <div class="form-group"><label>Additional feedback (leave blank if none)</label><textarea id="lfAdditionalFeedback" placeholder="Record any additional feedback..."></textarea></div>
           <div class="btn-row"><button class="btn btn-green" id="btnSubmitLeadForm">✅ Submit Lead</button><button class="btn btn-gray" id="btnCloseLeadForm" style="margin-top:4px">Cancel</button></div>
@@ -185,13 +198,15 @@
       <div id="message"></div>
     </div>
   </div>
+
   <div id="passwordModal" class="hidden"><div class="modal-overlay"><div class="modal"><h3>Supervisor Password</h3><input type="password" id="supervisorPassword" placeholder="Enter password" style="width:100%;padding:10px;border:1px solid #e1e8ed;border-radius:6px"><div id="passwordHint" class="hint"></div><div class="modal-actions"><button class="btn small btn-gray" id="btnCancelPassword">Cancel</button><button class="btn small" id="btnConfirmPassword">Submit</button></div></div></div></div>
+
   <script>
     const API_URL='https://script.google.com/macros/s/AKfycbwMY1AnBlsXSYXEj0eCVjR8i5hNvF6c5nSf11plZfZznc19RmOQIeNUZX0rsvHHhn2uvA/exec';
     let currentLead=null,isSupervisorAuth=false,supervisorPw='',currentOrderStatus=null,salesRepName='',isSalesRepLoggedIn=false,dashboardData=null,currentRepData=null;
     const $=id=>document.getElementById(id);
     const roleSelect=$('roleSelect'),salesRepAuth=$('salesRepAuth'),salesRepEmail=$('salesRepEmail'),salesRepPassword=$('salesRepPassword'),btnSalesRepLogin=$('btnSalesRepLogin'),salesRepLoginMsg=$('salesRepLoginMsg'),loginBadge=$('loginBadge'),loginBadgeText=$('loginBadgeText'),actionButtons=$('actionButtons'),btnViewLeads=$('btnViewLeads'),btnViewOrders=$('btnViewOrders'),btnViewQualified=$('btnViewQualified'),btnPlaceOrder=$('btnPlaceOrder'),btnGenerateLead=$('btnGenerateLead'),customerCode=$('customerCode'),btnLoad=$('btnLoad'),detailsSection=$('detailsSection'),detailsTable=$('detailsTable'),leadsSection=$('leadsSection'),leadsTitle=$('leadsTitle'),leadsTable=$('leadsTable'),btnCloseLeads=$('btnCloseLeads'),ordersSection=$('ordersSection'),orderCustomerCode=$('orderCustomerCode'),btnCheckStatus=$('btnCheckStatus'),orderStatus=$('orderStatus'),orderNumber=$('orderNumber'),orderQuantity=$('orderQuantity'),btnSubmitOrder=$('btnSubmitOrder'),btnCloseOrders=$('btnCloseOrders'),qualification=$('qualification'),approvalButtons=$('approvalButtons'),btnApprove=$('btnApprove'),btnDecline=$('btnDecline'),presentation=$('presentation'),presentationOtherBox=$('presentationOtherBox'),presentationOther=$('presentationOther'),kycOnboarding=$('kycOnboarding'),qualificationOtherBox=$('qualificationOtherBox'),qualificationOther=$('qualificationOther'),assignSalesRep=$('assignSalesRep'),assignEmail=$('assignEmail'),btnSubmit=$('btnSubmit'),loading=$('loading'),message=$('message'),passwordModal=$('passwordModal'),supervisorPassword=$('supervisorPassword'),passwordHint=$('passwordHint'),btnCancelPassword=$('btnCancelPassword'),btnConfirmPassword=$('btnConfirmPassword');
-    const supervisorDashboard=$('supervisorDashboard'),metricTotalLeads=$('metricTotalLeads'),metricQualifiedLeads=$('metricQualifiedLeads'),metricQualificationRate=$('metricQualificationRate'),metricApprovedLeads=$('metricApprovedLeads'),metricConvertedLeads=$('metricConvertedLeads'),metricConversionRate=$('metricConversionRate'),btnRefreshDashboard=$('btnRefreshDashboard'),btnViewApprovedLeads=$('btnViewApprovedLeads');
+    const supervisorDashboard=$('supervisorDashboard'),metricTotalLeads=$('metricTotalLeads'),metricQualifiedLeads=$('metricQualifiedLeads'),metricQualificationRate=$('metricQualificationRate'),metricApprovedLeads=$('metricApprovedLeads'),metricPendingLeads=$('metricPendingLeads'),metricConvertedLeads=$('metricConvertedLeads'),metricConversionRate=$('metricConversionRate'),btnRefreshDashboard=$('btnRefreshDashboard'),btnViewApprovedLeads=$('btnViewApprovedLeads'),btnViewPendingLeads=$('btnViewPendingLeads');
     const salesRepDetailsSection=$('salesRepDetailsSection'),salesRepSelect=$('salesRepSelect'),repDetailsCard=$('repDetailsCard'),repName=$('repName'),repEmail=$('repEmail'),repTotalLeads=$('repTotalLeads'),repConvertedCount=$('repConvertedCount'),btnRepAllLeads=$('btnRepAllLeads'),btnRepConvertedLeads=$('btnRepConvertedLeads'),repLeadsTableSection=$('repLeadsTableSection'),repLeadsTitle=$('repLeadsTitle'),repLeadsTable=$('repLeadsTable'),btnCloseRepLeads=$('btnCloseRepLeads');
     const leadFormSection=$('leadFormSection');
 
@@ -207,9 +222,38 @@
     $('btnDownloadConvertedPdf').addEventListener('click',()=>{if(!currentRepData||!currentRepData.convertedLeads||currentRepData.convertedLeads.length===0){showMsg('No converted leads.','error');return;}const h=['Code','Store Name','Area','Region','Contact','Order 1 (Kgs)','Order 2 (Kgs)','Order 3 (Kgs)','Total (Kgs)','Milestone'];const d=currentRepData.convertedLeads.map(l=>[l.customerCode,l.storeName,l.area,l.region,l.contactPerson,l.order1Qty>0?l.order1Qty:'-',l.order2Qty>0?l.order2Qty:'-',l.order3Qty>0?l.order3Qty:'-',l.totalQty,l.milestone]);downloadPdf(d,h,currentRepData.name+' - Converted Leads','Converted Leads - '+currentRepData.name);showMsg('PDF downloaded!','success');});
 
     // Dashboard
-    async function loadDashboard(){if(!isSupervisorAuth||!supervisorPw)return;const res=await api('getSupervisorDashboard',{password:supervisorPw});if(res.success){dashboardData=res.data;metricTotalLeads.textContent=res.data.totalLeads;metricQualifiedLeads.textContent=res.data.qualifiedLeads;metricQualificationRate.textContent=res.data.qualificationRate+'%';metricApprovedLeads.textContent=res.data.approvedLeadsCount;metricConvertedLeads.textContent=res.data.convertedLeads;metricConversionRate.textContent=res.data.conversionRate+'%';supervisorDashboard.classList.remove('hidden');}else showMsg('Dashboard error: '+res.message,'error');}
+    async function loadDashboard(){
+      if(!isSupervisorAuth||!supervisorPw)return;
+      const res=await api('getSupervisorDashboard',{password:supervisorPw});
+      if(res.success){
+        dashboardData=res.data;
+        metricTotalLeads.textContent=res.data.totalLeads;
+        metricQualifiedLeads.textContent=res.data.qualifiedLeads;
+        metricQualificationRate.textContent=res.data.qualificationRate+'%';
+        metricApprovedLeads.textContent=res.data.approvedLeadsCount;
+        metricConvertedLeads.textContent=res.data.convertedLeads;
+        metricConversionRate.textContent=res.data.conversionRate+'%';
+        supervisorDashboard.classList.remove('hidden');
+        // Fetch pending count
+        const pendingRes=await api('getPendingLeads',{password:supervisorPw});
+        if(pendingRes.success){metricPendingLeads.textContent=pendingRes.data.length;}
+      }else showMsg('Dashboard error: '+res.message,'error');
+    }
+
     btnRefreshDashboard.addEventListener('click',()=>{loadDashboard();showMsg('Dashboard refreshed','success');});
-    btnViewApprovedLeads.addEventListener('click',()=>{if(!dashboardData||!dashboardData.approvedLeads){showMsg('No data. Refresh first.','error');return;}if(dashboardData.approvedLeads.length===0){showMsg('No approved leads','info');return;}renderLeadsTable(dashboardData.approvedLeads,'Approved Leads ('+dashboardData.approvedLeadsCount+')');});
+
+    btnViewApprovedLeads.addEventListener('click',()=>{
+      if(!dashboardData||!dashboardData.approvedLeads){showMsg('No data. Refresh first.','error');return;}
+      if(dashboardData.approvedLeads.length===0){showMsg('No approved leads','info');return;}
+      renderLeadsTable(dashboardData.approvedLeads,'✅ Approved Leads ('+dashboardData.approvedLeadsCount+')');
+    });
+
+    btnViewPendingLeads.addEventListener('click',async()=>{
+      const res=await api('getPendingLeads',{password:supervisorPw});
+      if(!res.success){showMsg(res.message,'error');return;}
+      if(res.data.length===0){showMsg('No leads pending approval','info');return;}
+      renderLeadsTable(res.data,'⏳ Pending Approval ('+res.data.length+')');
+    });
 
     // Sales Rep Details
     salesRepSelect.addEventListener('change',async()=>{const email=salesRepSelect.value;if(!email){repDetailsCard.classList.add('hidden');currentRepData=null;return;}const res=await api('getSalesRepDetails',{salesRepEmail:email,password:supervisorPw});if(res.success){currentRepData=res.data;repName.textContent=res.data.name;repEmail.textContent=res.data.email;repTotalLeads.textContent=res.data.totalLeads;repConvertedCount.textContent=res.data.convertedCount;repDetailsCard.classList.remove('hidden');repLeadsTableSection.classList.add('hidden');}else{showMsg(res.message,'error');repDetailsCard.classList.add('hidden');}});
@@ -217,25 +261,21 @@
     btnRepConvertedLeads.addEventListener('click',()=>{if(!currentRepData||currentRepData.convertedLeads.length===0){showMsg('No converted leads','info');return;}repLeadsTitle.textContent='Converted ('+currentRepData.convertedCount+')';const h=['Code','Store Name','Area','Order 1','Order 2','Order 3','Total','Milestone'];repLeadsTable.innerHTML='<thead><tr>'+h.map(x=>'<th>'+x+'</th>').join('')+'</tr></thead><tbody>'+currentRepData.convertedLeads.map(l=>{let bc='milestone-1';if(l.completedOrders===3)bc='milestone-3';else if(l.completedOrders===2)bc='milestone-2';return '<tr><td>'+l.customerCode+'</td><td>'+l.storeName+'</td><td>'+l.area+'</td><td>'+(l.order1Qty>0?l.order1Qty.toFixed(2):'-')+'</td><td>'+(l.order2Qty>0?l.order2Qty.toFixed(2):'-')+'</td><td>'+(l.order3Qty>0?l.order3Qty.toFixed(2):'-')+'</td><td>'+l.totalQty.toFixed(2)+'</td><td><span class="milestone-badge '+bc+'">'+l.milestone+'</span></td></tr>';}).join('')+'</tbody>';repLeadsTableSection.classList.remove('hidden');});
     btnCloseRepLeads.addEventListener('click',()=>repLeadsTableSection.classList.add('hidden'));
 
-    // ========== LEAD GENERATION FORM ==========
+    // Lead Generation Form
     btnGenerateLead.addEventListener('click',()=>{leadFormSection.classList.remove('hidden');ordersSection.classList.add('hidden');leadsSection.classList.add('hidden');detailsSection.classList.add('hidden');});
     $('btnCloseLeadForm').addEventListener('click',()=>{leadFormSection.classList.add('hidden');});
 
-      // Purchase Frequency "Other" toggle
-    $('lfPurchaseFreq').addEventListener('change', () => {
-      $('lfPurchaseFreqOtherBox').classList.toggle('hidden', $('lfPurchaseFreq').value !== 'Other');
-      if ($('lfPurchaseFreq').value !== 'Other') $('lfPurchaseFreqOther').value = '';
+    $('lfPurchaseFreq').addEventListener('change',()=>{
+      $('lfPurchaseFreqOtherBox').classList.toggle('hidden',$('lfPurchaseFreq').value!=='Other');
+      if($('lfPurchaseFreq').value!=='Other')$('lfPurchaseFreqOther').value='';
     });
 
     $('btnSubmitLeadForm').addEventListener('click',async()=>{
       const region=$('lfRegion').value;const area=$('lfArea').value.trim();const location=$('lfLocation').value.trim();const storeName=$('lfStoreName').value.trim();const contactPerson=$('lfContactPerson').value.trim();const mobileNumber=$('lfMobileNumber').value.trim();const outletCategory=$('lfOutletCategory').value;const distributorType=$('lfDistributorType').value;const mainSupplier=$('lfMainSupplier').value.trim();const weldplusAwareness=$('lfWeldplusAware').value;const additionalFeedback=$('lfAdditionalFeedback').value.trim();
-      // Handle purchase frequency with "Other" option
       let purchaseFrequency=$('lfPurchaseFreq').value;
       if(purchaseFrequency==='Other'){const otherText=$('lfPurchaseFreqOther').value.trim();if(!otherText){showMsg('Please specify the purchase frequency','error');return;}purchaseFrequency='Other: '+otherText;}
-      // Get checked brands
       const brandCheckboxes=document.querySelectorAll('#lfBrandsGroup input[type="checkbox"]:checked');
       const brandsStocked=Array.from(brandCheckboxes).map(cb=>cb.value).join(', ');
-      // Validate
       if(!region){showMsg('Please select a Region','error');return;}
       if(!area){showMsg('Please enter an Area','error');return;}
       if(!location){showMsg('Please enter a Location/Landmark','error');return;}
@@ -247,7 +287,6 @@
       if(!weldplusAwareness){showMsg('Please select Weldplus awareness','error');return;}
       const res=await api('submitLeadForm',{salesRepEmail:salesRepEmail.value.trim(),salesRepPassword:salesRepPassword.value.trim(),region,area,location,storeName,contactPerson,mobileNumber,outletCategory,brandsStocked,purchaseFrequency,mainSupplier,distributorType,weldplusAwareness,additionalFeedback});
       if(res.success){showMsg(res.message,'success');
-        // Reset form
         $('lfRegion').value='';$('lfArea').value='';$('lfLocation').value='';$('lfStoreName').value='';$('lfContactPerson').value='';$('lfMobileNumber').value='';$('lfOutletCategory').value='';$('lfPurchaseFreq').value='';$('lfPurchaseFreqOther').value='';$('lfPurchaseFreqOtherBox').classList.add('hidden');$('lfDistributorType').value='';$('lfMainSupplier').value='';$('lfWeldplusAware').value='';$('lfAdditionalFeedback').value='';
         document.querySelectorAll('#lfBrandsGroup input[type="checkbox"]').forEach(cb=>cb.checked=false);
         leadFormSection.classList.add('hidden');
@@ -255,32 +294,136 @@
     });
 
     // UI
-    function updateUI(){const role=roleSelect.value;if(role==='Supervisor'&&isSupervisorAuth){supervisorDashboard.classList.remove('hidden');salesRepDetailsSection.classList.remove('hidden');}else{supervisorDashboard.classList.add('hidden');salesRepDetailsSection.classList.add('hidden');}if(role==='SalesRep')salesRepAuth.classList.remove('hidden');else salesRepAuth.classList.add('hidden');if(role==='SalesRep'&&isSalesRepLoggedIn)actionButtons.classList.remove('hidden');else if(role==='Supervisor')actionButtons.classList.remove('hidden');else actionButtons.classList.add('hidden');btnViewLeads.classList.toggle('hidden',role!=='Supervisor');btnViewOrders.classList.toggle('hidden',role!=='Supervisor');btnViewQualified.classList.toggle('hidden',role!=='SalesRep');btnPlaceOrder.classList.toggle('hidden',role!=='SalesRep');btnGenerateLead.classList.toggle('hidden',role!=='SalesRep');approvalButtons.classList.toggle('hidden',role!=='Supervisor'||!isSupervisorAuth);assignSalesRep.classList.toggle('hidden',role!=='Supervisor'||!isSupervisorAuth);qualification.disabled=role!=='Supervisor'||!isSupervisorAuth;presentation.disabled=role!=='SalesRep'||!currentLead||currentLead.approval!=='Approved'||!isSalesRepLoggedIn;kycOnboarding.disabled=role!=='SalesRep'||!currentLead||currentLead.approval!=='Approved'||!isSalesRepLoggedIn;if(role==='SalesRep'){customerCode.disabled=!isSalesRepLoggedIn;btnLoad.disabled=!isSalesRepLoggedIn;}else{customerCode.disabled=false;btnLoad.disabled=false;}qualificationOtherBox.classList.toggle('hidden',qualification.value!=='Other');presentationOtherBox.classList.toggle('hidden',presentation.value!=='Other');if(role==='Supervisor'&&!isSupervisorAuth)showPasswordModal();}
+    function updateUI(){
+      const role=roleSelect.value;
+      if(role==='Supervisor'&&isSupervisorAuth){supervisorDashboard.classList.remove('hidden');salesRepDetailsSection.classList.remove('hidden');}
+      else{supervisorDashboard.classList.add('hidden');salesRepDetailsSection.classList.add('hidden');}
+      if(role==='SalesRep')salesRepAuth.classList.remove('hidden');else salesRepAuth.classList.add('hidden');
+      if(role==='SalesRep'&&isSalesRepLoggedIn)actionButtons.classList.remove('hidden');else if(role==='Supervisor')actionButtons.classList.remove('hidden');else actionButtons.classList.add('hidden');
+      btnViewLeads.classList.toggle('hidden',role!=='Supervisor');
+      btnViewOrders.classList.toggle('hidden',role!=='Supervisor');
+      btnViewQualified.classList.toggle('hidden',role!=='SalesRep');
+      btnPlaceOrder.classList.toggle('hidden',role!=='SalesRep');
+      btnGenerateLead.classList.toggle('hidden',role!=='SalesRep');
+      approvalButtons.classList.toggle('hidden',role!=='Supervisor'||!isSupervisorAuth);
+      assignSalesRep.classList.toggle('hidden',role!=='Supervisor'||!isSupervisorAuth);
+      qualification.disabled=role!=='Supervisor'||!isSupervisorAuth;
+      presentation.disabled=role!=='SalesRep'||!currentLead||currentLead.approval!=='Approved'||!isSalesRepLoggedIn;
+      kycOnboarding.disabled=role!=='SalesRep'||!currentLead||currentLead.approval!=='Approved'||!isSalesRepLoggedIn;
+      if(role==='SalesRep'){customerCode.disabled=!isSalesRepLoggedIn;btnLoad.disabled=!isSalesRepLoggedIn;}else{customerCode.disabled=false;btnLoad.disabled=false;}
+      qualificationOtherBox.classList.toggle('hidden',qualification.value!=='Other');
+      presentationOtherBox.classList.toggle('hidden',presentation.value!=='Other');
+      if(role==='Supervisor'&&!isSupervisorAuth)showPasswordModal();
+    }
+
     function showPasswordModal(){passwordModal.classList.remove('hidden');supervisorPassword.value='';passwordHint.style.display='none';supervisorPassword.focus();}
     function hidePasswordModal(){passwordModal.classList.add('hidden');}
-    roleSelect.addEventListener('change',()=>{currentLead=null;detailsSection.classList.add('hidden');leadsSection.classList.add('hidden');ordersSection.classList.add('hidden');leadFormSection.classList.add('hidden');supervisorDashboard.classList.add('hidden');salesRepDetailsSection.classList.add('hidden');qualification.value='';presentation.value='';kycOnboarding.value='';qualificationOther.value='';presentationOther.value='';qualificationOtherBox.classList.add('hidden');presentationOtherBox.classList.add('hidden');salesRepLoginMsg.style.display='none';if(roleSelect.value==='SalesRep'){isSalesRepLoggedIn=false;salesRepName='';salesRepEmail.value='';salesRepPassword.value='';if(loginBadge){loginBadge.classList.remove('show');loginBadgeText.textContent='';}}if(roleSelect.value!=='Supervisor'){isSupervisorAuth=false;supervisorPw='';}updateUI();});
+
+    roleSelect.addEventListener('change',()=>{
+      currentLead=null;
+      detailsSection.classList.add('hidden');leadsSection.classList.add('hidden');ordersSection.classList.add('hidden');leadFormSection.classList.add('hidden');supervisorDashboard.classList.add('hidden');salesRepDetailsSection.classList.add('hidden');
+      qualification.value='';presentation.value='';kycOnboarding.value='';qualificationOther.value='';presentationOther.value='';
+      qualificationOtherBox.classList.add('hidden');presentationOtherBox.classList.add('hidden');
+      salesRepLoginMsg.style.display='none';
+      if(roleSelect.value==='SalesRep'){isSalesRepLoggedIn=false;salesRepName='';salesRepEmail.value='';salesRepPassword.value='';if(loginBadge){loginBadge.classList.remove('show');loginBadgeText.textContent='';}}
+      if(roleSelect.value!=='Supervisor'){isSupervisorAuth=false;supervisorPw='';}
+      updateUI();
+    });
+
     btnCancelPassword.addEventListener('click',()=>{hidePasswordModal();roleSelect.value='';updateUI();});
-    btnConfirmPassword.addEventListener('click',async()=>{const pw=supervisorPassword.value.trim();if(!pw){passwordHint.textContent='Enter password';passwordHint.style.display='block';return;}const res=await api('validateSupervisorPassword',{password:pw});if(res.success){isSupervisorAuth=true;supervisorPw=pw;hidePasswordModal();if(loginBadge){loginBadge.classList.add('show');loginBadgeText.textContent='Logged in as: Supervisor';}updateUI();loadDashboard();showMsg('Supervisor authenticated','success');}else{passwordHint.textContent=res.message||'Invalid password';passwordHint.style.display='block';}});
-    btnSalesRepLogin.addEventListener('click',async()=>{const email=salesRepEmail.value.trim();const password=salesRepPassword.value.trim();if(!email||!password){salesRepLoginMsg.textContent='Please enter email and password';salesRepLoginMsg.style.display='block';return;}const res=await api('validateSalesRepLogin',{salesRepEmail:email,salesRepPassword:password});if(res.success){isSalesRepLoggedIn=true;salesRepName=res.name;salesRepLoginMsg.style.display='none';if(loginBadge){loginBadge.classList.add('show');loginBadgeText.textContent='Logged in as: '+res.name;}btnSalesRepLogin.textContent='Logged In ✓';btnSalesRepLogin.disabled=true;btnSalesRepLogin.style.background='#22c55e';salesRepEmail.disabled=true;salesRepPassword.disabled=true;updateUI();showMsg('Welcome, '+res.name+'!','success');}else{salesRepLoginMsg.textContent=res.message;salesRepLoginMsg.style.display='block';salesRepLoginMsg.style.color='#dc2626';}});
-    btnLoad.addEventListener('click',async()=>{const code=customerCode.value.trim();const role=roleSelect.value;if(!role){showMsg('Select a role first','error');return;}if(!code){showMsg('Enter customer code','error');return;}if(role==='SalesRep'&&!isSalesRepLoggedIn){showMsg('Please login first','error');return;}const res=await api('getLeadStatus',{customerCode:code,role,salesRepEmail:salesRepEmail.value.trim(),salesRepPassword:salesRepPassword.value.trim()});if(!res.success){showMsg(res.message,'error');return;}currentLead=res.data;qualification.value=currentLead.qualification||'';presentation.value=currentLead.presentation||'';kycOnboarding.value=currentLead.kycOnboarding||'';assignEmail.value=currentLead.salesRepEmail||'';if(currentLead.qualification&&currentLead.qualification.startsWith('Other: ')){qualification.value='Other';qualificationOther.value=currentLead.qualification.substring(7);}else qualificationOther.value='';if(currentLead.presentation&&currentLead.presentation.startsWith('Other: ')){presentation.value='Other';presentationOther.value=currentLead.presentation.substring(7);}else presentationOther.value='';renderDetails(currentLead);detailsSection.classList.remove('hidden');leadsSection.classList.add('hidden');ordersSection.classList.add('hidden');leadFormSection.classList.add('hidden');updateUI();showMsg('Lead loaded (row '+currentLead.row+')','success');});
+
+    btnConfirmPassword.addEventListener('click',async()=>{
+      const pw=supervisorPassword.value.trim();
+      if(!pw){passwordHint.textContent='Enter password';passwordHint.style.display='block';return;}
+      const res=await api('validateSupervisorPassword',{password:pw});
+      if(res.success){isSupervisorAuth=true;supervisorPw=pw;hidePasswordModal();if(loginBadge){loginBadge.classList.add('show');loginBadgeText.textContent='Logged in as: Supervisor';}updateUI();loadDashboard();showMsg('Supervisor authenticated','success');}
+      else{passwordHint.textContent=res.message||'Invalid password';passwordHint.style.display='block';}
+    });
+
+    btnSalesRepLogin.addEventListener('click',async()=>{
+      const email=salesRepEmail.value.trim();const password=salesRepPassword.value.trim();
+      if(!email||!password){salesRepLoginMsg.textContent='Please enter email and password';salesRepLoginMsg.style.display='block';return;}
+      const res=await api('validateSalesRepLogin',{salesRepEmail:email,salesRepPassword:password});
+      if(res.success){isSalesRepLoggedIn=true;salesRepName=res.name;salesRepLoginMsg.style.display='none';if(loginBadge){loginBadge.classList.add('show');loginBadgeText.textContent='Logged in as: '+res.name;}btnSalesRepLogin.textContent='Logged In ✓';btnSalesRepLogin.disabled=true;btnSalesRepLogin.style.background='#22c55e';salesRepEmail.disabled=true;salesRepPassword.disabled=true;updateUI();showMsg('Welcome, '+res.name+'!','success');}
+      else{salesRepLoginMsg.textContent=res.message;salesRepLoginMsg.style.display='block';salesRepLoginMsg.style.color='#dc2626';}
+    });
+
+    btnLoad.addEventListener('click',async()=>{
+      const code=customerCode.value.trim();const role=roleSelect.value;
+      if(!role){showMsg('Select a role first','error');return;}
+      if(!code){showMsg('Enter customer code','error');return;}
+      if(role==='SalesRep'&&!isSalesRepLoggedIn){showMsg('Please login first','error');return;}
+      const res=await api('getLeadStatus',{customerCode:code,role,salesRepEmail:salesRepEmail.value.trim(),salesRepPassword:salesRepPassword.value.trim()});
+      if(!res.success){showMsg(res.message,'error');return;}
+      currentLead=res.data;
+      qualification.value=currentLead.qualification||'';presentation.value=currentLead.presentation||'';kycOnboarding.value=currentLead.kycOnboarding||'';assignEmail.value=currentLead.salesRepEmail||'';
+      if(currentLead.qualification&&currentLead.qualification.startsWith('Other: ')){qualification.value='Other';qualificationOther.value=currentLead.qualification.substring(7);}else qualificationOther.value='';
+      if(currentLead.presentation&&currentLead.presentation.startsWith('Other: ')){presentation.value='Other';presentationOther.value=currentLead.presentation.substring(7);}else presentationOther.value='';
+      renderDetails(currentLead);detailsSection.classList.remove('hidden');leadsSection.classList.add('hidden');ordersSection.classList.add('hidden');leadFormSection.classList.add('hidden');updateUI();showMsg('Lead loaded (row '+currentLead.row+')','success');
+    });
+
     function renderDetails(d){const f=[['Region',d.region],['Area',d.area],['Location',d.location],['Store Name',d.storeName],['Contact',d.contactPerson],['Mobile',d.mobileNumber],['Category',d.outletCategory],['Brands',d.brandsStocked],['Freq',d.purchaseFrequency],['Supplier',d.mainSupplier],['Type',d.distributorType],['Weldplus',d.weldplusAwareness],['Feedback',d.additionalFeedback],['Code',d.customerCode]];detailsTable.innerHTML='<tr>'+f.map(x=>'<th>'+x[0]+'</th>').join('')+'</tr><tr>'+f.map(x=>'<td>'+(x[1]||'')+'</td>').join('')+'</tr>';}
-    btnViewLeads.addEventListener('click',async()=>{const res=await api('getAllGeneratedLeads');if(!res.success){showMsg(res.message,'error');return;}renderLeadsTable(res.data,'Generated Leads');});
+
+    btnViewLeads.addEventListener('click',async()=>{const res=await api('getAllGeneratedLeads');if(!res.success){showMsg(res.message,'error');return;}renderLeadsTable(res.data,'All Generated Leads');});
     btnViewQualified.addEventListener('click',async()=>{if(!isSalesRepLoggedIn){showMsg('Login first','error');return;}const res=await api('getQualifiedLeadsBySalesRep',{salesRepEmail:salesRepEmail.value.trim(),salesRepPassword:salesRepPassword.value.trim()});if(!res.success){showMsg(res.message,'error');return;}if(res.data.length===0){showMsg('No qualified leads','info');return;}renderLeadsTable(res.data,'Qualified Leads');});
     btnViewOrders.addEventListener('click',async()=>{const res=await api('getOrdersSummary');if(!res.success){showMsg(res.message,'error');return;}if(res.data.length===0){showMsg('No orders yet','info');return;}renderOrdersTable(res.data);});
-    function renderLeadsTable(leads,title){leadsTitle.textContent=title;const h=['Region','Area','Location','Store Name','Contact','Mobile','Category','Brands','Freq','Supplier','Dist Type','Weldplus','Feedback','Code'];leadsTable.innerHTML='<thead><tr>'+h.map(x=>'<th>'+x+'</th>').join('')+'</tr></thead><tbody>'+leads.map(l=>'<tr><td>'+l.region+'</td><td>'+l.area+'</td><td>'+l.location+'</td><td>'+l.storeName+'</td><td>'+l.contactPerson+'</td><td>'+l.mobileNumber+'</td><td>'+l.outletCategory+'</td><td>'+l.brandsStocked+'</td><td>'+l.purchaseFrequency+'</td><td>'+l.mainSupplier+'</td><td>'+l.distributorType+'</td><td>'+l.weldplusAwareness+'</td><td>'+l.additionalFeedback+'</td><td>'+l.customerCode+'</td></tr>').join('')+'</tbody>';leadsSection.classList.remove('hidden');detailsSection.classList.add('hidden');ordersSection.classList.add('hidden');leadFormSection.classList.add('hidden');}
+
+    function renderLeadsTable(leads,title){
+      leadsTitle.textContent=title;
+      const h=['Region','Area','Location','Store Name','Contact','Mobile','Category','Brands','Freq','Supplier','Dist Type','Weldplus','Feedback','Code'];
+      leadsTable.innerHTML='<thead><tr>'+h.map(x=>'<th>'+x+'</th>').join('')+'</tr></thead><tbody>'+leads.map(l=>'<tr><td>'+l.region+'</td><td>'+l.area+'</td><td>'+l.location+'</td><td>'+l.storeName+'</td><td>'+l.contactPerson+'</td><td>'+l.mobileNumber+'</td><td>'+l.outletCategory+'</td><td>'+l.brandsStocked+'</td><td>'+l.purchaseFrequency+'</td><td>'+l.mainSupplier+'</td><td>'+l.distributorType+'</td><td>'+l.weldplusAwareness+'</td><td>'+l.additionalFeedback+'</td><td>'+l.customerCode+'</td></tr>').join('')+'</tbody>';
+      leadsSection.classList.remove('hidden');detailsSection.classList.add('hidden');ordersSection.classList.add('hidden');leadFormSection.classList.add('hidden');
+    }
+
     function renderOrdersTable(orders){leadsTitle.textContent='Orders Summary';leadsTable.innerHTML='<thead><tr><th>Customer Code</th><th>Orders</th><th>Total Kgs</th><th>Avg Kgs</th></tr></thead><tbody>'+orders.map(o=>'<tr><td>'+o.customerCode+'</td><td>'+o.numberOfOrders+'</td><td>'+o.totalQuantity.toFixed(2)+'</td><td>'+o.averageQuantity.toFixed(2)+'</td></tr>').join('')+'</tbody>';leadsSection.classList.remove('hidden');detailsSection.classList.add('hidden');ordersSection.classList.add('hidden');leadFormSection.classList.add('hidden');}
+
     btnCloseLeads.addEventListener('click',()=>leadsSection.classList.add('hidden'));
+
     qualification.addEventListener('change',()=>{qualificationOtherBox.classList.toggle('hidden',qualification.value!=='Other');if(qualification.value!=='Other')qualificationOther.value='';});
     presentation.addEventListener('change',()=>{presentationOtherBox.classList.toggle('hidden',presentation.value!=='Other');if(presentation.value!=='Other')presentationOther.value='';});
+
     btnPlaceOrder.addEventListener('click',()=>{ordersSection.classList.remove('hidden');leadsSection.classList.add('hidden');detailsSection.classList.add('hidden');leadFormSection.classList.add('hidden');orderCustomerCode.value='';orderNumber.innerHTML='<option value="">-- Check status first --</option>';orderNumber.disabled=true;orderQuantity.value='';orderStatus.classList.add('hidden');currentOrderStatus=null;});
     btnCloseOrders.addEventListener('click',()=>ordersSection.classList.add('hidden'));
+
     btnCheckStatus.addEventListener('click',async()=>{const code=orderCustomerCode.value.trim();if(!code){showMsg('Enter customer code','error');return;}if(!isSalesRepLoggedIn){showMsg('Login first','error');return;}const res=await api('getAvailableOrders',{customerCode:code,salesRepEmail:salesRepEmail.value.trim(),salesRepPassword:salesRepPassword.value.trim()});if(!res.success){showMsg(res.message,'error');orderStatus.classList.add('hidden');return;}currentOrderStatus=res;updateOrderDropdown(res);let html='';if(res.submittedOrders.length===0)html='No orders yet. Submit Order 1.';else if(res.nextAvailableOrder===-1)html='All 3 orders submitted.';else html='Submitted: Order '+res.submittedOrders.join(', ')+'<br><strong>Next:</strong> Order '+res.nextAvailableOrder;orderStatus.innerHTML=html;orderStatus.classList.remove('hidden');});
+
     function updateOrderDropdown(s){let o='<option value="">-- Select Order --</option>';for(let i=1;i<=3;i++){const sub=s.submittedOrders.includes(i);const av=i===s.nextAvailableOrder;const dis=sub||(!av&&s.nextAvailableOrder!==-1);const lab=sub?'Order '+i+' (Done)':av?'Order '+i+' (Available)':'Order '+i;o+='<option value="Order '+i+'" '+(dis?'disabled':'')+'>'+lab+'</option>';}orderNumber.innerHTML=o;orderNumber.disabled=s.nextAvailableOrder===-1;}
+
     btnSubmitOrder.addEventListener('click',async()=>{const code=orderCustomerCode.value.trim();const num=orderNumber.value;const qty=parseFloat(orderQuantity.value);if(!code||!num||!qty||qty<=0){showMsg('Fill all fields','error');return;}if(!currentOrderStatus){showMsg('Check status first','error');return;}if(!isSalesRepLoggedIn){showMsg('Login first','error');return;}const res=await api('submitOrder',{customerCode:code,orderNumber:num,quantity:qty,salesRepEmail:salesRepEmail.value.trim(),salesRepPassword:salesRepPassword.value.trim()});if(res.success){showMsg(res.message,'success');orderQuantity.value='';btnCheckStatus.click();}else showMsg(res.message,'error');});
-    btnApprove.addEventListener('click',()=>updateQualification('Approved'));btnDecline.addEventListener('click',()=>updateQualification('Declined'));
-    async function updateQualification(action){if(!currentLead){showMsg('Load a lead first','error');return;}if(!qualification.value){showMsg('Select qualification','error');return;}let qv=qualification.value;if(qv==='Other'){const ct=qualificationOther.value.trim();if(!ct){showMsg('Specify reason','error');return;}qv='Other: '+ct;}const res=await api('updateQualificationBySupervisor',{customerCode:customerCode.value.trim(),qualificationValue:qv,approvalAction:action,salesRepEmail:assignEmail.value.trim(),password:supervisorPw});if(res.success){showMsg('Lead '+action.toLowerCase(),'success');btnLoad.click();loadDashboard();}else showMsg(res.message,'error');}
-    btnSubmit.addEventListener('click',async()=>{const role=roleSelect.value;const code=customerCode.value.trim();if(!currentLead||!code){showMsg('Load a lead first','error');return;}if(role==='Supervisor'){let qv=qualification.value;if(qv==='Other'){const ct=qualificationOther.value.trim();if(!ct){showMsg('Specify reason','error');return;}qv='Other: '+ct;}const res=await api('updateQualificationBySupervisor',{customerCode:code,qualificationValue:qv,approvalAction:'',salesRepEmail:assignEmail.value.trim(),password:supervisorPw});if(res.success){showMsg('Qualification updated','success');btnLoad.click();loadDashboard();}else showMsg(res.message,'error');}else if(role==='SalesRep'){let u=[],er=[];if(presentation.value){let pv=presentation.value;if(pv==='Other'){const ct=presentationOther.value.trim();if(!ct){showMsg('Specify reason','error');return;}pv='Other: '+ct;}if(pv!==(currentLead.presentation||'')){const r=await api('updatePresentationBySalesRep',{customerCode:code,presentationValue:pv,salesRepEmail:salesRepEmail.value.trim(),password:salesRepPassword.value.trim()});if(r.success)u.push('Presentation');else er.push(r.message);}}if(kycOnboarding.value&&kycOnboarding.value!==currentLead.kycOnboarding){const r=await api('updateKYCOnboardingBySalesRep',{customerCode:code,kycValue:kycOnboarding.value,salesRepEmail:salesRepEmail.value.trim(),password:salesRepPassword.value.trim()});if(r.success)u.push('KYC Onboarding');else er.push(r.message);}if(u.length>0){showMsg(u.join(' and ')+' updated. Logged out.','success');setTimeout(()=>logoutSalesRep(),2000);}else if(er.length>0)showMsg(er.join('; '),'error');else showMsg('No changes','info');}});
+
+    btnApprove.addEventListener('click',()=>updateQualification('Approved'));
+    btnDecline.addEventListener('click',()=>updateQualification('Declined'));
+
+    async function updateQualification(action){
+      if(!currentLead){showMsg('Load a lead first','error');return;}
+      if(!qualification.value){showMsg('Select qualification','error');return;}
+      let qv=qualification.value;
+      if(qv==='Other'){const ct=qualificationOther.value.trim();if(!ct){showMsg('Specify reason','error');return;}qv='Other: '+ct;}
+      const res=await api('updateQualificationBySupervisor',{customerCode:customerCode.value.trim(),qualificationValue:qv,approvalAction:action,salesRepEmail:assignEmail.value.trim(),password:supervisorPw});
+      if(res.success){showMsg('Lead '+action.toLowerCase(),'success');btnLoad.click();loadDashboard();}
+      else showMsg(res.message,'error');
+    }
+
+    btnSubmit.addEventListener('click',async()=>{
+      const role=roleSelect.value;const code=customerCode.value.trim();
+      if(!currentLead||!code){showMsg('Load a lead first','error');return;}
+      if(role==='Supervisor'){
+        let qv=qualification.value;
+        if(qv==='Other'){const ct=qualificationOther.value.trim();if(!ct){showMsg('Specify reason','error');return;}qv='Other: '+ct;}
+        const res=await api('updateQualificationBySupervisor',{customerCode:code,qualificationValue:qv,approvalAction:'',salesRepEmail:assignEmail.value.trim(),password:supervisorPw});
+        if(res.success){showMsg('Qualification updated','success');btnLoad.click();loadDashboard();}else showMsg(res.message,'error');
+      }else if(role==='SalesRep'){
+        let u=[],er=[];
+        if(presentation.value){let pv=presentation.value;if(pv==='Other'){const ct=presentationOther.value.trim();if(!ct){showMsg('Specify reason','error');return;}pv='Other: '+ct;}if(pv!==(currentLead.presentation||'')){const r=await api('updatePresentationBySalesRep',{customerCode:code,presentationValue:pv,salesRepEmail:salesRepEmail.value.trim(),password:salesRepPassword.value.trim()});if(r.success)u.push('Presentation');else er.push(r.message);}}
+        if(kycOnboarding.value&&kycOnboarding.value!==currentLead.kycOnboarding){const r=await api('updateKYCOnboardingBySalesRep',{customerCode:code,kycValue:kycOnboarding.value,salesRepEmail:salesRepEmail.value.trim(),password:salesRepPassword.value.trim()});if(r.success)u.push('KYC Onboarding');else er.push(r.message);}
+        if(u.length>0){showMsg(u.join(' and ')+' updated. Logged out.','success');setTimeout(()=>logoutSalesRep(),2000);}
+        else if(er.length>0)showMsg(er.join('; '),'error');
+        else showMsg('No changes','info');
+      }
+    });
+
     function logoutSalesRep(){isSalesRepLoggedIn=false;salesRepName='';salesRepEmail.value='';salesRepPassword.value='';salesRepEmail.disabled=false;salesRepPassword.disabled=false;btnSalesRepLogin.disabled=false;btnSalesRepLogin.textContent='Login';btnSalesRepLogin.style.background='';if(loginBadge){loginBadge.classList.remove('show');loginBadgeText.textContent='';}customerCode.value='';qualification.value='';presentation.value='';kycOnboarding.value='';qualificationOther.value='';presentationOther.value='';currentLead=null;detailsSection.classList.add('hidden');leadsSection.classList.add('hidden');ordersSection.classList.add('hidden');leadFormSection.classList.add('hidden');qualificationOtherBox.classList.add('hidden');presentationOtherBox.classList.add('hidden');updateUI();showMsg('Logged out. Login again to continue.','info');}
+
     updateUI();
     if('serviceWorker' in navigator){navigator.serviceWorker.register('service-worker.js').catch(e=>console.log('SW error',e));}
   </script>
