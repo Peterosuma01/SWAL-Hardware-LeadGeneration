@@ -38,6 +38,7 @@
     .btn-orange{background:linear-gradient(135deg,#f97316 0%,#ea580c 100%)}
     .btn-dark{background:linear-gradient(135deg,#374151 0%,#1f2937 100%)}
     .btn-amber{background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);color:#1f2937}
+    .btn-crimson{background:linear-gradient(135deg,#be123c 0%,#9f1239 100%)}
     .message{padding:12px;border-radius:8px;margin-top:14px;display:none;font-size:13px}
     .message.success{background:#d4edda;color:#155724;border:1px solid #c3e6cb;display:block}
     .message.error{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;display:block}
@@ -70,6 +71,7 @@
     .dashboard-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:16px}
     .metric-card{background:rgba(255,255,255,0.15);backdrop-filter:blur(10px);border-radius:8px;padding:14px;text-align:center;border:1px solid rgba(255,255,255,0.2)}
     .metric-card.pending{background:rgba(251,191,36,0.25);border-color:rgba(251,191,36,0.5)}
+    .metric-card.terminated{background:rgba(190,18,60,0.25);border-color:rgba(190,18,60,0.5)}
     .metric-value{font-size:28px;font-weight:700;margin-bottom:4px}
     .metric-label{font-size:12px;opacity:0.9;text-transform:uppercase;letter-spacing:0.5px}
     .dashboard-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
@@ -93,6 +95,7 @@
     .lead-form-card .section-title{color:#16a34a}
     .required{color:#dc2626}
     .pending-badge{display:inline-block;background:#fef3c7;color:#92400e;border:1px solid #fcd34d;border-radius:12px;padding:2px 10px;font-size:11px;font-weight:700;margin-left:6px;vertical-align:middle}
+    .terminated-banner{background:#fff1f2;border:1px solid #fecdd3;border-radius:8px;padding:10px 14px;margin-top:10px;font-size:12px;color:#9f1239;font-weight:600;display:flex;align-items:center;gap:8px}
     @media(max-width:640px){
       .btn-row{flex-direction:column}.btn.small{width:100%}.container{padding:16px;margin:10px}
       .field-inline{flex-direction:column}.field-inline>input{width:100%;min-height:50px;font-size:16px}
@@ -119,11 +122,13 @@
         <div class="metric-card pending"><div class="metric-value" id="metricPendingLeads">0</div><div class="metric-label">Pending Approval</div></div>
         <div class="metric-card" style="background:rgba(34,197,94,0.2);border-color:rgba(34,197,94,0.3)"><div class="metric-value" id="metricConvertedLeads">0</div><div class="metric-label">Converted Leads</div></div>
         <div class="metric-card" style="background:rgba(34,197,94,0.2);border-color:rgba(34,197,94,0.3)"><div class="metric-value" id="metricConversionRate">0%</div><div class="metric-label">Conversion Rate</div></div>
+        <div class="metric-card terminated"><div class="metric-value" id="metricTerminatedLeads">0</div><div class="metric-label">Terminated Leads</div></div>
       </div>
       <div class="dashboard-actions">
         <button class="btn small" id="btnRefreshDashboard" style="background:rgba(255,255,255,0.2)">🔄 Refresh</button>
         <button class="btn small" id="btnViewPendingLeads" style="background:rgba(251,191,36,0.85);color:#1f2937;font-weight:700">⏳ Pending Approval</button>
         <button class="btn small" id="btnViewApprovedLeads" style="background:rgba(34,197,94,0.9)">✅ View Approved Leads</button>
+        <button class="btn small" id="btnViewTerminatedLeads" style="background:rgba(190,18,60,0.85)">🚫 Terminated Leads</button>
       </div>
     </div>
 
@@ -181,7 +186,14 @@
 
       <div class="form-group"><label>Customer Code *</label><div class="field-inline"><input type="text" id="customerCode" placeholder="Enter customer code"><button class="btn small" id="btnLoad">Load</button></div><div class="meta">Enter code and click Load to fetch data.</div></div>
       <div id="detailsSection" class="hidden"><div class="section-title">Customer Details</div><div style="overflow-x:auto"><table class="details-table" id="detailsTable"></table></div></div>
-      <div id="leadsSection" class="hidden"><div class="section-title" id="leadsTitle">Leads</div><div class="table-wrap"><table class="leads-table" id="leadsTable"></table></div><button class="btn small btn-gray" id="btnCloseLeads" style="margin-top:12px">Close List</button></div>
+      <div id="leadsSection" class="hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:18px;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #f0f0f0">
+          <span class="section-title" id="leadsTitle" style="margin:0;border:none;padding:0">Leads</span>
+          <button class="btn small btn-teal hidden" id="btnDownloadTerminatedExcel" style="margin-top:0">📗 Download Excel</button>
+        </div>
+        <div class="table-wrap"><table class="leads-table" id="leadsTable"></table></div>
+        <button class="btn small btn-gray" id="btnCloseLeads" style="margin-top:12px">Close List</button>
+      </div>
       <div id="ordersSection" class="hidden"><div class="section-title">Place Order</div><div class="form-group"><label>Customer Code *</label><div class="field-inline"><input type="text" id="orderCustomerCode" placeholder="Enter customer code"><button class="btn small" id="btnCheckStatus">Check Status</button></div></div><div id="orderStatus" class="order-status hidden"></div><div class="form-group"><label>Order Number *</label><select id="orderNumber" disabled><option value="">-- Check status first --</option></select></div><div class="form-group"><label>Quantity (Kgs) *</label><input type="number" id="orderQuantity" placeholder="Enter quantity" min="0" step="0.01"></div><div class="btn-row"><button class="btn small btn-teal" id="btnSubmitOrder">Submit Order</button><button class="btn small btn-gray" id="btnCloseOrders">Close</button></div></div>
       <div class="section-title">Qualification</div>
       <div class="form-group"><label>Qualification Status *</label><select id="qualification" disabled><option value="">-- Select Status --</option><option value="YES">YES</option><option value="NO">NO</option><option value="Volume Too Small">Volume Too Small</option><option value="Bad Previous History">Bad Previous History</option><option value="Other">Other</option></select></div>
@@ -203,10 +215,10 @@
 
   <script>
     const API_URL='https://script.google.com/macros/s/AKfycbwMY1AnBlsXSYXEj0eCVjR8i5hNvF6c5nSf11plZfZznc19RmOQIeNUZX0rsvHHhn2uvA/exec';
-    let currentLead=null,isSupervisorAuth=false,supervisorPw='',currentOrderStatus=null,salesRepName='',isSalesRepLoggedIn=false,dashboardData=null,currentRepData=null;
+    let currentLead=null,isSupervisorAuth=false,supervisorPw='',currentOrderStatus=null,salesRepName='',isSalesRepLoggedIn=false,dashboardData=null,currentRepData=null,currentTerminatedLeads=[];
     const $=id=>document.getElementById(id);
-    const roleSelect=$('roleSelect'),salesRepAuth=$('salesRepAuth'),salesRepEmail=$('salesRepEmail'),salesRepPassword=$('salesRepPassword'),btnSalesRepLogin=$('btnSalesRepLogin'),salesRepLoginMsg=$('salesRepLoginMsg'),loginBadge=$('loginBadge'),loginBadgeText=$('loginBadgeText'),actionButtons=$('actionButtons'),btnViewLeads=$('btnViewLeads'),btnViewOrders=$('btnViewOrders'),btnViewQualified=$('btnViewQualified'),btnPlaceOrder=$('btnPlaceOrder'),btnGenerateLead=$('btnGenerateLead'),customerCode=$('customerCode'),btnLoad=$('btnLoad'),detailsSection=$('detailsSection'),detailsTable=$('detailsTable'),leadsSection=$('leadsSection'),leadsTitle=$('leadsTitle'),leadsTable=$('leadsTable'),btnCloseLeads=$('btnCloseLeads'),ordersSection=$('ordersSection'),orderCustomerCode=$('orderCustomerCode'),btnCheckStatus=$('btnCheckStatus'),orderStatus=$('orderStatus'),orderNumber=$('orderNumber'),orderQuantity=$('orderQuantity'),btnSubmitOrder=$('btnSubmitOrder'),btnCloseOrders=$('btnCloseOrders'),qualification=$('qualification'),approvalButtons=$('approvalButtons'),btnApprove=$('btnApprove'),btnDecline=$('btnDecline'),presentation=$('presentation'),presentationOtherBox=$('presentationOtherBox'),presentationOther=$('presentationOther'),kycOnboarding=$('kycOnboarding'),qualificationOtherBox=$('qualificationOtherBox'),qualificationOther=$('qualificationOther'),assignSalesRep=$('assignSalesRep'),assignEmail=$('assignEmail'),btnSubmit=$('btnSubmit'),loading=$('loading'),message=$('message'),passwordModal=$('passwordModal'),supervisorPassword=$('supervisorPassword'),passwordHint=$('passwordHint'),btnCancelPassword=$('btnCancelPassword'),btnConfirmPassword=$('btnConfirmPassword');
-    const supervisorDashboard=$('supervisorDashboard'),metricTotalLeads=$('metricTotalLeads'),metricQualifiedLeads=$('metricQualifiedLeads'),metricQualificationRate=$('metricQualificationRate'),metricApprovedLeads=$('metricApprovedLeads'),metricPendingLeads=$('metricPendingLeads'),metricConvertedLeads=$('metricConvertedLeads'),metricConversionRate=$('metricConversionRate'),btnRefreshDashboard=$('btnRefreshDashboard'),btnViewApprovedLeads=$('btnViewApprovedLeads'),btnViewPendingLeads=$('btnViewPendingLeads');
+    const roleSelect=$('roleSelect'),salesRepAuth=$('salesRepAuth'),salesRepEmail=$('salesRepEmail'),salesRepPassword=$('salesRepPassword'),btnSalesRepLogin=$('btnSalesRepLogin'),salesRepLoginMsg=$('salesRepLoginMsg'),loginBadge=$('loginBadge'),loginBadgeText=$('loginBadgeText'),actionButtons=$('actionButtons'),btnViewLeads=$('btnViewLeads'),btnViewOrders=$('btnViewOrders'),btnViewQualified=$('btnViewQualified'),btnPlaceOrder=$('btnPlaceOrder'),btnGenerateLead=$('btnGenerateLead'),customerCode=$('customerCode'),btnLoad=$('btnLoad'),detailsSection=$('detailsSection'),detailsTable=$('detailsTable'),leadsSection=$('leadsSection'),leadsTitle=$('leadsTitle'),leadsTable=$('leadsTable'),btnCloseLeads=$('btnCloseLeads'),btnDownloadTerminatedExcel=$('btnDownloadTerminatedExcel'),ordersSection=$('ordersSection'),orderCustomerCode=$('orderCustomerCode'),btnCheckStatus=$('btnCheckStatus'),orderStatus=$('orderStatus'),orderNumber=$('orderNumber'),orderQuantity=$('orderQuantity'),btnSubmitOrder=$('btnSubmitOrder'),btnCloseOrders=$('btnCloseOrders'),qualification=$('qualification'),approvalButtons=$('approvalButtons'),btnApprove=$('btnApprove'),btnDecline=$('btnDecline'),presentation=$('presentation'),presentationOtherBox=$('presentationOtherBox'),presentationOther=$('presentationOther'),kycOnboarding=$('kycOnboarding'),qualificationOtherBox=$('qualificationOtherBox'),qualificationOther=$('qualificationOther'),assignSalesRep=$('assignSalesRep'),assignEmail=$('assignEmail'),btnSubmit=$('btnSubmit'),loading=$('loading'),message=$('message'),passwordModal=$('passwordModal'),supervisorPassword=$('supervisorPassword'),passwordHint=$('passwordHint'),btnCancelPassword=$('btnCancelPassword'),btnConfirmPassword=$('btnConfirmPassword');
+    const supervisorDashboard=$('supervisorDashboard'),metricTotalLeads=$('metricTotalLeads'),metricQualifiedLeads=$('metricQualifiedLeads'),metricQualificationRate=$('metricQualificationRate'),metricApprovedLeads=$('metricApprovedLeads'),metricPendingLeads=$('metricPendingLeads'),metricConvertedLeads=$('metricConvertedLeads'),metricConversionRate=$('metricConversionRate'),metricTerminatedLeads=$('metricTerminatedLeads'),btnRefreshDashboard=$('btnRefreshDashboard'),btnViewApprovedLeads=$('btnViewApprovedLeads'),btnViewPendingLeads=$('btnViewPendingLeads'),btnViewTerminatedLeads=$('btnViewTerminatedLeads');
     const salesRepDetailsSection=$('salesRepDetailsSection'),salesRepSelect=$('salesRepSelect'),repDetailsCard=$('repDetailsCard'),repName=$('repName'),repEmail=$('repEmail'),repTotalLeads=$('repTotalLeads'),repConvertedCount=$('repConvertedCount'),btnRepAllLeads=$('btnRepAllLeads'),btnRepConvertedLeads=$('btnRepConvertedLeads'),repLeadsTableSection=$('repLeadsTableSection'),repLeadsTitle=$('repLeadsTitle'),repLeadsTable=$('repLeadsTable'),btnCloseRepLeads=$('btnCloseRepLeads');
     const leadFormSection=$('leadFormSection');
 
@@ -221,6 +233,15 @@
     $('btnDownloadConvertedExcel').addEventListener('click',()=>{if(!currentRepData||!currentRepData.convertedLeads||currentRepData.convertedLeads.length===0){showMsg('No converted leads.','error');return;}const h=['Code','Store Name','Area','Region','Contact','Order 1 (Kgs)','Order 2 (Kgs)','Order 3 (Kgs)','Total (Kgs)','Milestone'];const d=currentRepData.convertedLeads.map(l=>[l.customerCode,l.storeName,l.area,l.region,l.contactPerson,l.order1Qty>0?l.order1Qty:'-',l.order2Qty>0?l.order2Qty:'-',l.order3Qty>0?l.order3Qty:'-',l.totalQty,l.milestone]);downloadExcel(d,h,currentRepData.name+' - Converted Leads');showMsg('Excel downloaded!','success');});
     $('btnDownloadConvertedPdf').addEventListener('click',()=>{if(!currentRepData||!currentRepData.convertedLeads||currentRepData.convertedLeads.length===0){showMsg('No converted leads.','error');return;}const h=['Code','Store Name','Area','Region','Contact','Order 1 (Kgs)','Order 2 (Kgs)','Order 3 (Kgs)','Total (Kgs)','Milestone'];const d=currentRepData.convertedLeads.map(l=>[l.customerCode,l.storeName,l.area,l.region,l.contactPerson,l.order1Qty>0?l.order1Qty:'-',l.order2Qty>0?l.order2Qty:'-',l.order3Qty>0?l.order3Qty:'-',l.totalQty,l.milestone]);downloadPdf(d,h,currentRepData.name+' - Converted Leads','Converted Leads - '+currentRepData.name);showMsg('PDF downloaded!','success');});
 
+    // Download terminated leads as Excel (supervisor only)
+    btnDownloadTerminatedExcel.addEventListener('click',()=>{
+      if(!currentTerminatedLeads||currentTerminatedLeads.length===0){showMsg('No terminated leads to download.','error');return;}
+      const h=['Code','Store Name','Area','Region','Location','Contact','Mobile','Category','Brands','Freq','Supplier','Dist Type','Weldplus','Qualification','Approval','Presentation','KYC','Sales Rep Email','Feedback'];
+      const d=currentTerminatedLeads.map(l=>[l.customerCode,l.storeName,l.area,l.region,l.location,l.contactPerson,l.mobileNumber,l.outletCategory,l.brandsStocked,l.purchaseFrequency,l.mainSupplier,l.distributorType,l.weldplusAwareness,l.qualification,l.approval,l.presentation,l.kycOnboarding,l.salesRepEmail,l.additionalFeedback]);
+      downloadExcel(d,h,'Terminated Leads - '+new Date().toLocaleDateString().replace(/\//g,'-'));
+      showMsg('Terminated leads Excel downloaded!','success');
+    });
+
     // Dashboard
     async function loadDashboard(){
       if(!isSupervisorAuth||!supervisorPw)return;
@@ -233,6 +254,7 @@
         metricApprovedLeads.textContent=res.data.approvedLeadsCount;
         metricConvertedLeads.textContent=res.data.convertedLeads;
         metricConversionRate.textContent=res.data.conversionRate+'%';
+        metricTerminatedLeads.textContent=res.data.terminatedLeadsCount||0;
         supervisorDashboard.classList.remove('hidden');
         // Fetch pending count
         const pendingRes=await api('getPendingLeads',{password:supervisorPw});
@@ -244,20 +266,28 @@
 
     btnViewApprovedLeads.addEventListener('click',()=>{
       if(!dashboardData||!dashboardData.approvedLeads){showMsg('No data. Refresh first.','error');return;}
-      if(dashboardData.approvedLeads.length===0){showMsg('No approved leads','info');return;}
-      renderLeadsTable(dashboardData.approvedLeads,'✅ Approved Leads ('+dashboardData.approvedLeadsCount+')');
+      if(dashboardData.approvedLeads.length===0){showMsg('No approved leads (terminated leads are excluded)','info');return;}
+      renderLeadsTable(dashboardData.approvedLeads,'✅ Approved Leads ('+dashboardData.approvedLeadsCount+')',false);
     });
 
     btnViewPendingLeads.addEventListener('click',async()=>{
       const res=await api('getPendingLeads',{password:supervisorPw});
       if(!res.success){showMsg(res.message,'error');return;}
       if(res.data.length===0){showMsg('No leads pending approval','info');return;}
-      renderLeadsTable(res.data,'⏳ Pending Approval ('+res.data.length+')');
+      renderLeadsTable(res.data,'⏳ Pending Approval ('+res.data.length+')',false);
+    });
+
+    btnViewTerminatedLeads.addEventListener('click',async()=>{
+      const res=await api('getTerminatedLeads',{password:supervisorPw});
+      if(!res.success){showMsg(res.message,'error');return;}
+      currentTerminatedLeads=res.data;
+      if(res.data.length===0){showMsg('No terminated leads found','info');currentTerminatedLeads=[];return;}
+      renderLeadsTable(res.data,'🚫 Terminated Leads ('+res.data.length+')',true);
     });
 
     // Sales Rep Details
     salesRepSelect.addEventListener('change',async()=>{const email=salesRepSelect.value;if(!email){repDetailsCard.classList.add('hidden');currentRepData=null;return;}const res=await api('getSalesRepDetails',{salesRepEmail:email,password:supervisorPw});if(res.success){currentRepData=res.data;repName.textContent=res.data.name;repEmail.textContent=res.data.email;repTotalLeads.textContent=res.data.totalLeads;repConvertedCount.textContent=res.data.convertedCount;repDetailsCard.classList.remove('hidden');repLeadsTableSection.classList.add('hidden');}else{showMsg(res.message,'error');repDetailsCard.classList.add('hidden');}});
-    btnRepAllLeads.addEventListener('click',()=>{if(!currentRepData||currentRepData.generatedLeads.length===0){showMsg('No leads','info');return;}repLeadsTitle.textContent='All Leads ('+currentRepData.totalLeads+')';const h=['Code','Store Name','Area','Region','Contact','Mobile','Qualification','Approval','Presentation','KYC'];repLeadsTable.innerHTML='<thead><tr>'+h.map(x=>'<th>'+x+'</th>').join('')+'</tr></thead><tbody>'+currentRepData.generatedLeads.map(l=>'<tr><td>'+l.customerCode+'</td><td>'+l.storeName+'</td><td>'+l.area+'</td><td>'+l.region+'</td><td>'+l.contactPerson+'</td><td>'+l.mobileNumber+'</td><td>'+l.qualification+'</td><td>'+l.approval+'</td><td>'+l.presentation+'</td><td>'+l.kycOnboarding+'</td></tr>').join('')+'</tbody>';repLeadsTableSection.classList.remove('hidden');});
+    btnRepAllLeads.addEventListener('click',()=>{if(!currentRepData||currentRepData.generatedLeads.length===0){showMsg('No leads','info');return;}repLeadsTitle.textContent='All Leads ('+currentRepData.totalLeads+')';const h=['Code','Store Name','Area','Region','Contact','Mobile','Qualification','Approval','Presentation','KYC'];repLeadsTable.innerHTML='<thead><tr>'+h.map(x=>'<th>'+x+'</th>').join('')+'</tr></thead><tbody>'+currentRepData.generatedLeads.map(l=>{const isTerminated=l.kycOnboarding==='Lead Terminated';return '<tr style="'+(isTerminated?'background:#fff1f2;color:#9f1239':'')+'"><td>'+l.customerCode+'</td><td>'+l.storeName+'</td><td>'+l.area+'</td><td>'+l.region+'</td><td>'+l.contactPerson+'</td><td>'+l.mobileNumber+'</td><td>'+l.qualification+'</td><td>'+l.approval+'</td><td>'+l.presentation+'</td><td>'+(isTerminated?'<strong>🚫 '+l.kycOnboarding+'</strong>':l.kycOnboarding)+'</td></tr>';}).join('')+'</tbody>';repLeadsTableSection.classList.remove('hidden');});
     btnRepConvertedLeads.addEventListener('click',()=>{if(!currentRepData||currentRepData.convertedLeads.length===0){showMsg('No converted leads','info');return;}repLeadsTitle.textContent='Converted ('+currentRepData.convertedCount+')';const h=['Code','Store Name','Area','Order 1','Order 2','Order 3','Total','Milestone'];repLeadsTable.innerHTML='<thead><tr>'+h.map(x=>'<th>'+x+'</th>').join('')+'</tr></thead><tbody>'+currentRepData.convertedLeads.map(l=>{let bc='milestone-1';if(l.completedOrders===3)bc='milestone-3';else if(l.completedOrders===2)bc='milestone-2';return '<tr><td>'+l.customerCode+'</td><td>'+l.storeName+'</td><td>'+l.area+'</td><td>'+(l.order1Qty>0?l.order1Qty.toFixed(2):'-')+'</td><td>'+(l.order2Qty>0?l.order2Qty.toFixed(2):'-')+'</td><td>'+(l.order3Qty>0?l.order3Qty.toFixed(2):'-')+'</td><td>'+l.totalQty.toFixed(2)+'</td><td><span class="milestone-badge '+bc+'">'+l.milestone+'</span></td></tr>';}).join('')+'</tbody>';repLeadsTableSection.classList.remove('hidden');});
     btnCloseRepLeads.addEventListener('click',()=>repLeadsTableSection.classList.add('hidden'));
 
@@ -325,6 +355,8 @@
       qualification.value='';presentation.value='';kycOnboarding.value='';qualificationOther.value='';presentationOther.value='';
       qualificationOtherBox.classList.add('hidden');presentationOtherBox.classList.add('hidden');
       salesRepLoginMsg.style.display='none';
+      currentTerminatedLeads=[];
+      btnDownloadTerminatedExcel.classList.add('hidden');
       if(roleSelect.value==='SalesRep'){isSalesRepLoggedIn=false;salesRepName='';salesRepEmail.value='';salesRepPassword.value='';if(loginBadge){loginBadge.classList.remove('show');loginBadgeText.textContent='';}}
       if(roleSelect.value!=='Supervisor'){isSupervisorAuth=false;supervisorPw='';}
       updateUI();
@@ -359,25 +391,31 @@
       qualification.value=currentLead.qualification||'';presentation.value=currentLead.presentation||'';kycOnboarding.value=currentLead.kycOnboarding||'';assignEmail.value=currentLead.salesRepEmail||'';
       if(currentLead.qualification&&currentLead.qualification.startsWith('Other: ')){qualification.value='Other';qualificationOther.value=currentLead.qualification.substring(7);}else qualificationOther.value='';
       if(currentLead.presentation&&currentLead.presentation.startsWith('Other: ')){presentation.value='Other';presentationOther.value=currentLead.presentation.substring(7);}else presentationOther.value='';
-      renderDetails(currentLead);detailsSection.classList.remove('hidden');leadsSection.classList.add('hidden');ordersSection.classList.add('hidden');leadFormSection.classList.add('hidden');updateUI();showMsg('Lead loaded (row '+currentLead.row+')','success');
+      renderDetails(currentLead);detailsSection.classList.remove('hidden');leadsSection.classList.add('hidden');ordersSection.classList.add('hidden');leadFormSection.classList.add('hidden');
+      // Show terminated banner if applicable
+      const existingBanner=document.querySelector('.terminated-banner');if(existingBanner)existingBanner.remove();
+      if(currentLead.kycOnboarding==='Lead Terminated'){const banner=document.createElement('div');banner.className='terminated-banner';banner.innerHTML='🚫 This lead has been terminated and is excluded from approved leads lists.';detailsSection.appendChild(banner);}
+      updateUI();showMsg('Lead loaded (row '+currentLead.row+')','success');
     });
 
     function renderDetails(d){const f=[['Region',d.region],['Area',d.area],['Location',d.location],['Store Name',d.storeName],['Contact',d.contactPerson],['Mobile',d.mobileNumber],['Category',d.outletCategory],['Brands',d.brandsStocked],['Freq',d.purchaseFrequency],['Supplier',d.mainSupplier],['Type',d.distributorType],['Weldplus',d.weldplusAwareness],['Feedback',d.additionalFeedback],['Code',d.customerCode]];detailsTable.innerHTML='<tr>'+f.map(x=>'<th>'+x[0]+'</th>').join('')+'</tr><tr>'+f.map(x=>'<td>'+(x[1]||'')+'</td>').join('')+'</tr>';}
 
-    btnViewLeads.addEventListener('click',async()=>{const res=await api('getAllGeneratedLeads');if(!res.success){showMsg(res.message,'error');return;}renderLeadsTable(res.data,'All Generated Leads');});
-    btnViewQualified.addEventListener('click',async()=>{if(!isSalesRepLoggedIn){showMsg('Login first','error');return;}const res=await api('getQualifiedLeadsBySalesRep',{salesRepEmail:salesRepEmail.value.trim(),salesRepPassword:salesRepPassword.value.trim()});if(!res.success){showMsg(res.message,'error');return;}if(res.data.length===0){showMsg('No qualified leads','info');return;}renderLeadsTable(res.data,'Qualified Leads');});
+    btnViewLeads.addEventListener('click',async()=>{const res=await api('getAllGeneratedLeads');if(!res.success){showMsg(res.message,'error');return;}renderLeadsTable(res.data,'All Generated Leads',false);});
+    btnViewQualified.addEventListener('click',async()=>{if(!isSalesRepLoggedIn){showMsg('Login first','error');return;}const res=await api('getQualifiedLeadsBySalesRep',{salesRepEmail:salesRepEmail.value.trim(),salesRepPassword:salesRepPassword.value.trim()});if(!res.success){showMsg(res.message,'error');return;}if(res.data.length===0){showMsg('No qualified leads (terminated leads are excluded)','info');return;}renderLeadsTable(res.data,'Qualified Leads',false);});
     btnViewOrders.addEventListener('click',async()=>{const res=await api('getOrdersSummary');if(!res.success){showMsg(res.message,'error');return;}if(res.data.length===0){showMsg('No orders yet','info');return;}renderOrdersTable(res.data);});
 
-    function renderLeadsTable(leads,title){
+    function renderLeadsTable(leads,title,showTerminatedDownload){
       leadsTitle.textContent=title;
+      // Show/hide terminated Excel download button
+      if(showTerminatedDownload&&roleSelect.value==='Supervisor'){btnDownloadTerminatedExcel.classList.remove('hidden');}else{btnDownloadTerminatedExcel.classList.add('hidden');}
       const h=['Region','Area','Location','Store Name','Contact','Mobile','Category','Brands','Freq','Supplier','Dist Type','Weldplus','Feedback','Code'];
       leadsTable.innerHTML='<thead><tr>'+h.map(x=>'<th>'+x+'</th>').join('')+'</tr></thead><tbody>'+leads.map(l=>'<tr><td>'+l.region+'</td><td>'+l.area+'</td><td>'+l.location+'</td><td>'+l.storeName+'</td><td>'+l.contactPerson+'</td><td>'+l.mobileNumber+'</td><td>'+l.outletCategory+'</td><td>'+l.brandsStocked+'</td><td>'+l.purchaseFrequency+'</td><td>'+l.mainSupplier+'</td><td>'+l.distributorType+'</td><td>'+l.weldplusAwareness+'</td><td>'+l.additionalFeedback+'</td><td>'+l.customerCode+'</td></tr>').join('')+'</tbody>';
       leadsSection.classList.remove('hidden');detailsSection.classList.add('hidden');ordersSection.classList.add('hidden');leadFormSection.classList.add('hidden');
     }
 
-    function renderOrdersTable(orders){leadsTitle.textContent='Orders Summary';leadsTable.innerHTML='<thead><tr><th>Customer Code</th><th>Orders</th><th>Total Kgs</th><th>Avg Kgs</th></tr></thead><tbody>'+orders.map(o=>'<tr><td>'+o.customerCode+'</td><td>'+o.numberOfOrders+'</td><td>'+o.totalQuantity.toFixed(2)+'</td><td>'+o.averageQuantity.toFixed(2)+'</td></tr>').join('')+'</tbody>';leadsSection.classList.remove('hidden');detailsSection.classList.add('hidden');ordersSection.classList.add('hidden');leadFormSection.classList.add('hidden');}
+    function renderOrdersTable(orders){leadsTitle.textContent='Orders Summary';btnDownloadTerminatedExcel.classList.add('hidden');leadsTable.innerHTML='<thead><tr><th>Customer Code</th><th>Orders</th><th>Total Kgs</th><th>Avg Kgs</th></tr></thead><tbody>'+orders.map(o=>'<tr><td>'+o.customerCode+'</td><td>'+o.numberOfOrders+'</td><td>'+o.totalQuantity.toFixed(2)+'</td><td>'+o.averageQuantity.toFixed(2)+'</td></tr>').join('')+'</tbody>';leadsSection.classList.remove('hidden');detailsSection.classList.add('hidden');ordersSection.classList.add('hidden');leadFormSection.classList.add('hidden');}
 
-    btnCloseLeads.addEventListener('click',()=>leadsSection.classList.add('hidden'));
+    btnCloseLeads.addEventListener('click',()=>{leadsSection.classList.add('hidden');btnDownloadTerminatedExcel.classList.add('hidden');currentTerminatedLeads=[];});
 
     qualification.addEventListener('change',()=>{qualificationOtherBox.classList.toggle('hidden',qualification.value!=='Other');if(qualification.value!=='Other')qualificationOther.value='';});
     presentation.addEventListener('change',()=>{presentationOtherBox.classList.toggle('hidden',presentation.value!=='Other');if(presentation.value!=='Other')presentationOther.value='';});
@@ -422,7 +460,7 @@
       }
     });
 
-    function logoutSalesRep(){isSalesRepLoggedIn=false;salesRepName='';salesRepEmail.value='';salesRepPassword.value='';salesRepEmail.disabled=false;salesRepPassword.disabled=false;btnSalesRepLogin.disabled=false;btnSalesRepLogin.textContent='Login';btnSalesRepLogin.style.background='';if(loginBadge){loginBadge.classList.remove('show');loginBadgeText.textContent='';}customerCode.value='';qualification.value='';presentation.value='';kycOnboarding.value='';qualificationOther.value='';presentationOther.value='';currentLead=null;detailsSection.classList.add('hidden');leadsSection.classList.add('hidden');ordersSection.classList.add('hidden');leadFormSection.classList.add('hidden');qualificationOtherBox.classList.add('hidden');presentationOtherBox.classList.add('hidden');updateUI();showMsg('Logged out. Login again to continue.','info');}
+    function logoutSalesRep(){isSalesRepLoggedIn=false;salesRepName='';salesRepEmail.value='';salesRepPassword.value='';salesRepEmail.disabled=false;salesRepPassword.disabled=false;btnSalesRepLogin.disabled=false;btnSalesRepLogin.textContent='Login';btnSalesRepLogin.style.background='';if(loginBadge){loginBadge.classList.remove('show');loginBadgeText.textContent='';}customerCode.value='';qualification.value='';presentation.value='';kycOnboarding.value='';qualificationOther.value='';presentationOther.value='';currentLead=null;detailsSection.classList.add('hidden');leadsSection.classList.add('hidden');ordersSection.classList.add('hidden');leadFormSection.classList.add('hidden');qualificationOtherBox.classList.add('hidden');presentationOtherBox.classList.add('hidden');btnDownloadTerminatedExcel.classList.add('hidden');currentTerminatedLeads=[];updateUI();showMsg('Logged out. Login again to continue.','info');}
 
     updateUI();
     if('serviceWorker' in navigator){navigator.serviceWorker.register('service-worker.js').catch(e=>console.log('SW error',e));}
