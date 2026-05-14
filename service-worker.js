@@ -1,6 +1,5 @@
-const CACHE_NAME = 'steelwool-v24';
+const CACHE_NAME = 'steelwool-v25';
 const OFFLINE_URL = '/offline.html';
-
 // Files to cache immediately on install
 const PRECACHE = [
   '/',
@@ -10,7 +9,6 @@ const PRECACHE = [
   '/icons/icon-192.png',
   '/icons/icon-512.png'
 ];
-
 // Install - cache shell files
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -19,7 +17,6 @@ self.addEventListener('install', (event) => {
       .then(() => self.skipWaiting())
   );
 });
-
 // Activate - cleanup old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
@@ -30,12 +27,10 @@ self.addEventListener('activate', (event) => {
     ).then(() => self.clients.claim())
   );
 });
-
 // Fetch handler
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   const url = new URL(req.url);
-
   // Don't cache API calls to Apps Script - always go to network
   if (url.hostname === 'script.google.com' || url.hostname === 'script.googleusercontent.com') {
     event.respondWith(
@@ -49,7 +44,6 @@ self.addEventListener('fetch', (event) => {
     );
     return;
   }
-
   // For same-origin requests
   if (url.origin === location.origin) {
     // HTML navigation requests - network first, fallback to cache, then offline page
@@ -68,7 +62,6 @@ self.addEventListener('fetch', (event) => {
       );
       return;
     }
-
     // Other static assets - cache first, then network
     event.respondWith(
       caches.match(req).then(cached => {
@@ -85,11 +78,9 @@ self.addEventListener('fetch', (event) => {
     );
     return;
   }
-
   // Cross-origin requests (other than API) - network only
   event.respondWith(fetch(req));
 });
-
 // Handle messages from the app
 self.addEventListener('message', (event) => {
   if (event.data === 'skipWaiting') {
